@@ -34,6 +34,8 @@ def index():
                 flash('Cookie文件上传成功!')
                 return redirect(request.url)
 
+    if not os.path.exists('../backup/'):
+        os.makedirs('../backup/')
     excel_files = glob.glob('../backup/*.xls*')
     json_files = glob.glob('../backup/*.json')
 
