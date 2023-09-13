@@ -1,0 +1,28 @@
+body {
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.center {
+    display: flex;
+    gap: 10px;
+}
+
+.flash-messages {
+    width: 100%;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 18px;
+    color: red;
+}
+
+.center form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}

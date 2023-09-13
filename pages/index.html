@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="statics/css/index_style.css">
+    <script>
+        function uploadFile(inputElementId, formId) {
+            const fileInput = document.getElementById(inputElementId);
+            fileInput.onchange = function() {
+                if (fileInput.files.length > 0) {
+                    document.getElementById(formId).submit();
+                }
+            };
+            // 在文件上传后，重新检查处理文件按钮的状态
+            checkProcessButtonStatus();
+        }
+
+        // 检查处理文件按钮的状态，并相应地显示或隐藏邮箱输入框
+        function checkProcessButtonStatus() {
+            const emailInput = document.getElementById("emailInput");
+            const processButton = document.getElementById("submit");
+            if (processButton.disabled) {
+                emailInput.style.display = "none";
+            } else {
+                emailInput.style.display = "block";
+            }
+        }
+    </script>
+    {% if messages %}
+        <script>
+            alert('{{ messages[0] }}');
+        </script>
+    {% endif %}
+    <title>文件操作</title>
+</head>
+<body onload="checkProcessButtonStatus();">
+    <div class="center">
+
+        <br>
+        <form id="excelForm" action="/upload-excel" method="post" enctype="multipart/form-data">
+            <input type="file" id="excelInput" name="excel_file" accept=".xls, .xlsx" style="display: none;">
+            <button type="button" onclick="document.getElementById('excelInput').click(); uploadFile('excelInput', 'excelForm')">数据上传</button>
+        </form>
+
+        <form id="jsonForm" action="/upload-json" method="post" enctype="multipart/form-data">
+            <input type="file" id="jsonInput" name="json_file" accept=".json" style="display: none;">
+            <button type="button" onclick="document.getElementById('jsonInput').click(); uploadFile('jsonInput', 'jsonForm')">Cookie上传</button>
+        </form>
+
+        <form id="emailForm" action="/process-data" method="post">
+            <input type="email" id="emailInput" name="emailInput" placeholder="请输入您的邮箱">
+            <button type="submit" id="submit" {% if not has_excel or not has_json %}disabled{% endif %}>处理文件</button>
+        </form>
+    </div>
+</body>
+</html>
