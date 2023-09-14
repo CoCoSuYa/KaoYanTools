@@ -1,10 +1,20 @@
 import glob
 import os
+import re
+from multiprocessing import Process
 
 from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages
 
+from HandleFile.handleFileData import handle_file_data
+
 app = Flask(__name__, template_folder='../pages', static_folder='../pages/statics')
 app.secret_key = 'some_secret'
+
+
+def run_in_new_process(func, *args):
+    p = Process(target=func, args=args)
+    p.start()
+    return p
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -99,9 +109,14 @@ def upload_json():
 @app.route('/process-data', methods=['POST'])
 def process_data():
     email = request.form.get('emailInput', '').strip()
-    if email:
-        with open('../backup/email_info', 'w') as email_info_file:
-            email_info_file.write(email)
+    print("target email:", email)
+
+    # 正则表达式进行email格式验证
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        flash('请提供一个有效的电子邮件地址！')
+        return redirect(url_for('index'))
+
+    run_in_new_process(handle_file_data, email, "../datas")
     flash('请求提交成功，请等待几分钟后检查邮箱获取数据！')
     return redirect(url_for('index'))
 

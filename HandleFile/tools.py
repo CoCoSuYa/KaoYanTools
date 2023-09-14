@@ -1,69 +1,34 @@
-import html
 import json
 import os
 import re
 from datetime import datetime, timedelta
-
 import requests
-from openpyxl import load_workbook
+from openpyxl.reader.excel import load_workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.workbook import Workbook
+import smtplib
+from email.header import Header
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 
-from error_handler import handle_error
-
-self_cookie1 = {
-    "xhsTrackerId": "8ccb6590-a64e-4964-a02d-0fb4583a31ab",
-    "xhsTrackerId.sig": "M4ymAnQxi3ng1zylgA9LGv-MTEOZHlR5WvERRQeVT7Y",
-    "a1": "1878ec72b9f34xctibh4293i0ldcu98o6p98f8hlz50000155385",
-    "webId": "eb8478acc157b0fd9a5276ca49d7d6cd",
-    "gid": "yYWYdSWJiDK2yYWYdSWJDUYxjiq4CS93Dx4Jj1ujq381fY28S7jYli888y22qY288SqYD4df",
-    "galaxy_creator_session_id": "EVByAGy7ls7O8RzKNxJH1B6IHM7TBnXHYI42",
-    "galaxy.creator.beaker.session.id": "1691650713488097531969",
-    "customerBeakerSessionId": "97266b672a8917fe7c49b13972272b40bf0e5ac9gAJ9cQAoWBAAAABjdXN0b21lclVzZXJUeXBlcQFLAlgOAAAAX2NyZWF0aW9uX3RpbWVxAkdB2TUish2hy1gJAAAAYXV0aFRva2VucQNYQQAAADEwODJhNzVjOTA3NjQ0YmFhNWY2YTY5NzE3ODJkOThjLTI4ZjQyNDRhZjgwMDQ1MTE5NDI0N2VkYjkxOWI2OWI2cQRYAwAAAF9pZHEFWCAAAABhYzhkYWUxZjAzMDk0NjAzOTY0NmNlZjU2M2VhMTk0M3EGWA4AAABfYWNjZXNzZWRfdGltZXEHR0HZNSKyHaHLWAYAAAB1c2VySWRxCFgYAAAANjEzMWRlNTgxOTE0NWEwMDAxZmQzZWE3cQlYAwAAAHNpZHEKWBgAAAA2NGQ0OGFjODY0MDAwMDAwMDAwMDAwMWZxC3Uu",
-    "customerClientId": "367375640977445",
-    "customer-sso-sid": "64d48ac8640000000000001f",
-    "x-user-id-pgy.xiaohongshu.com": "6131d237000000001f03a57a",
-    "solar.beaker.session.id": "1691650760555081230250",
-    "access-token-pgy.xiaohongshu.com": "customer.ares.AT-d5af9c5ca69c44219eb09ee60ee1c449-2c98f9fcf1494ed98b0cef49ba6d686a",
-    "access-token-pgy.beta.xiaohongshu.com": "customer.ares.AT-d5af9c5ca69c44219eb09ee60ee1c449-2c98f9fcf1494ed98b0cef49ba6d686a",
-    "xsecappid": "xhs-pc-web",
-    "abRequestId": "eb8478acc157b0fd9a5276ca49d7d6cd",
-    "webBuild": "3.4.1",
-    "websectiga": "3633fe24d49c7dd0eb923edc8205740f10fdb18b25d424d2a2322c6196d2a4ad",
-    "sec_poison_id": "f65de8f0-5219-4414-a26e-14a5bb9a1e7a",
-    "web_session": "040069b2d42fdaccfef0a92ee9364bb86e1968"
-}
-self_cookie2 = {
-    "xhsTrackerId": "8ccb6590-a64e-4964-a02d-0fb4583a31ab",
-    "xhsTrackerId.sig": "M4ymAnQxi3ng1zylgA9LGv-MTEOZHlR5WvERRQeVT7Y",
-    "a1": "1878ec72b9f34xctibh4293i0ldcu98o6p98f8hlz50000155385",
-    "webId": "eb8478acc157b0fd9a5276ca49d7d6cd",
-    "gid": "yYWYdSWJiDK2yYWYdSWJDUYxjiq4CS93Dx4Jj1ujq381fY28S7jYli888y22qY288SqYD4df",
-    "customerClientId": "367375640977445",
-    "x-user-id-pgy.xiaohongshu.com": "6131d237000000001f03a57a",
-    "abRequestId": "eb8478acc157b0fd9a5276ca49d7d6cd",
-    "web_session": "040069b2d42fdaccfef0a92ee9364bb86e1968",
-    "feratlin-status": "online",
-    "feratlin-status.sig": "uBZJqsDDK9NbcHCALtzq7uIWcElHVIDWaGpKRyVXpts",
-    "xsecappid": "xhs-pc-web",
-    "webBuild": "3.4.1",
-    "websectiga": "59d3ef1e60c4aa37a7df3c23467bd46d7f1da0b1918cf335ee7f2e9e52ac04cf",
-    "customerBeakerSessionId": "69598bb45e1dcb3646c895d9a4237d6559cc4143gAJ9cQAoWBAAAABjdXN0b21lclVzZXJUeXBlcQFLAlgOAAAAX2NyZWF0aW9uX3RpbWVxAkdB2Tdx0LTdL1gJAAAAYXV0aFRva2VucQNYQQAAADEwODJhNzVjOTA3NjQ0YmFhNWY2YTY5NzE3ODJkOThjLTI4ZjQyNDRhZjgwMDQ1MTE5NDI0N2VkYjkxOWI2OWI2cQRYAwAAAF9pZHEFWCAAAAA5OTM5MWM5MTc4MjU0N2E4YTI3MDQyMzU1YTliNjA2N3EGWA4AAABfYWNjZXNzZWRfdGltZXEHR0HZN3HQtN0vWAYAAAB1c2VySWRxCFgYAAAANjEzMWRlNTgxOTE0NWEwMDAxZmQzZWE3cQlYAwAAAHNpZHEKWBgAAAA2NGRkYzc0MjY0MDAwMDAwMDAwMDAwMWFxC3Uu",
-    "customer-sso-sid": "64ddc742640000000000001a",
-    "solar.beaker.session.id": "1692256066993064610385",
-    "access-token-pgy.xiaohongshu.com": "customer.ares.AT-6ab3ef556c594b4791e3a330aa0758b3-4606f83e37d6414d9efe98f784c4a1f0",
-    "access-token-pgy.beta.xiaohongshu.com": "customer.ares.AT-6ab3ef556c594b4791e3a330aa0758b3-4606f83e37d6414d9efe98f784c4a1f0"
-}
-current_fans_num = 0
-current_nicker = ""
-path = None
-hide, collected = False, False
-start_of_week, end_of_week = None, None
+data_info_path = '../backup/data_info'
+cookie_info_path = '../backup/cookie_info'
+data_dir = '../datas/'
+xhs_cookie = ""
+pgy_cookie = ""
+hide, collected, current_fans_num, current_nicker, start_of_week, end_of_week = 0, 0, 0, 0, 0, 0
 headers = {"referer": "https://www.xiaohongshu.com/",
            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
 
                          "Chrome/114.0.0.0 Safari/537.36",
            "Accept": "application/json, text/plain, */*"}
+email_server = 'smtp.gmail.com'
+manager_email = 'yuqi.xia@shanbay.com'
+email_pass = 'mnmbeanemjqfffbs'
+email_subject = '数据处理结果'
+email_body = '请下载数据附件，有问题找QA夏宇奇！'
 
 
 def split_into_weeks(data_ids):
@@ -108,67 +73,16 @@ def split_into_weeks(data_ids):
     return chunks
 
 
-def read_json_file(file_path):
-    """
-        读取cookie文件
-    :param file_path:
-    """
-    try:
-        with open(file_path, 'r') as f:
-            global self_cookie1, self_cookie2
-            cookie_datas = json.load(f)
-            self_cookie1 = cookie_datas['cookie1']
-            self_cookie2 = cookie_datas['cookie2']
-    except Exception as e:
-        print("读取cookie文件时出错：cookie失效或缺失")
-        handle_error("读取cookie文件时出错：cookie失效或缺失")
-
-
-def read_excel_file(file_paths):
-    """
-        读取Excel文件
-    :param file_paths:
-    :return:
-    """
-    links = []
-    global path
-    path = file_paths[0]
-    for file_path in file_paths:
-        ws = None
-        try:
-            wb = load_workbook(filename=file_path)
-            ws = wb.active
-        except Exception as e:
-            print("Error:\n", "读取文件时出错:", str(e))
-            handle_error(f"读取文件 {file_path}时出错: {str(e)}")
-
-        for row in ws.iter_rows():
-            for cell in row:
-                try:
-                    link = cell.hyperlink.target if cell.hyperlink else None
-                    if link:
-                        # 使用文件名作为键，并添加超链接到列表中
-                        filename = os.path.basename(file_path)
-                        links.append(link)
-                    else:
-                        links.append("")
-                except Exception as e:
-                    print("Error:\n", "读取文件链接时出错:", str(e))
-                    handle_error(f"读取文件 {file_path}时出错: {str(e)}")
-
-    return links
-
-
-def write_data_excel_file(file_url, data_ids):
+def write_data_excel_file(data_ids):
     """
         将帖子数据写入Excel文件
-    :param file_url:
-    :param data:
+    :param data_ids:
     """
     wb = Workbook()
     ws = wb.active
     try:
-        title_list = ["发布时间", "昵称", "博主等级", "笔记标题/链接", "笔记形式", "阅读量", "互动量", "点赞数", "收藏数",
+        title_list = ["发布时间", "昵称", "博主等级", "笔记标题/链接", "笔记形式", "阅读量", "互动量", "点赞数",
+                      "收藏数",
                       "评论数", "爆文情况", "备注"]
 
         # 填写标题
@@ -192,7 +106,6 @@ def write_data_excel_file(file_url, data_ids):
 
     except Exception as e:
         print("Error:\n", "填写数据表时出错:", str(e))
-        export_report(path, file_url, "填写数据时出错")
     for col_num, col in enumerate(ws.columns, 1):
         max_length = 0
         for cell in col:
@@ -203,25 +116,23 @@ def write_data_excel_file(file_url, data_ids):
                     max_length = cell_length
             except Exception as e:
                 print("Error:\n", "设置数据表列宽时发生错误:", str(e))
-                export_report(path, file_url, "设置数据表列宽时发生错误")
         adjusted_width = (max_length + 2)
         ws.column_dimensions[get_column_letter(col_num)].width = adjusted_width
     # 得到原文件名（不含扩展名）
+    with open(data_info_path, "r", encoding="utf-8") as file_path:
+        file_url = file_path.read()
     filename_without_ext = os.path.splitext(os.path.basename(file_url))[0]
-    # 得到文件所在目录
-    dir_name = os.path.dirname(file_url)
     # 构造新文件名（可以自行修改格式）
     new_filename = filename_without_ext + "_数据整理.xlsx"
     # 得到新文件的完整路径
-    new_file_url = os.path.join(dir_name, new_filename)
+    new_file_url = os.path.join(data_dir, new_filename)
     print(new_file_url)
     wb.save(new_file_url)
 
 
-def write_date_excel_file(file_url, data_ids):
+def write_date_excel_file(data_ids):
     """
         将排期数据按周写入Excel文件
-    :param file_url:
     :param data_ids:
     """
     global start_of_week, end_of_week
@@ -257,7 +168,6 @@ def write_date_excel_file(file_url, data_ids):
                 ws.cell(row=row, column=date_obj.weekday() + 1, value=date_id)
         except Exception as e:
             print("Error:\n", "填写排期表时出错:", str(e))
-            export_report(path, file_url, "填写排期表时出错")
 
         for col_num, col in enumerate(ws.columns, 1):
             max_length = 0
@@ -269,26 +179,24 @@ def write_date_excel_file(file_url, data_ids):
                         max_length = cell_length
                 except Exception as e:
                     print("Error:\n", "设置排期表列宽时发生错误:", str(e))
-                    export_report(path, file_url, "整理排期表时设置列宽时出错")
             adjusted_width = (max_length + 2)
             ws.column_dimensions[get_column_letter(col_num)].width = adjusted_width
 
         # 得到原文件名（不含扩展名）
+        with open(data_info_path, "r", encoding="utf-8") as file_path:
+            file_url = file_path.read()
         filename_without_ext = os.path.splitext(os.path.basename(file_url))[0]
-        # 得到文件所在目录
-        dir_name = os.path.dirname(file_url)
         # 构造新文件名（可以自行修改格式）
         new_filename = filename_without_ext + f'_排期表{start_of_week}~{end_of_week}.xlsx'
         # 得到新文件的完整路径
-        new_file_url = os.path.join(dir_name, new_filename)
+        new_file_url = os.path.join(data_dir, new_filename)
         print(new_file_url)
         wb.save(new_file_url)
 
 
-def write_up_fans_excel_file(file_url, data_ids):
+def write_up_fans_excel_file(data_ids):
     """
         将博主数据写入Excel文件
-    :param file_url:
     :param data_ids:
     """
     wb = Workbook()
@@ -315,48 +223,60 @@ def write_up_fans_excel_file(file_url, data_ids):
             except Exception as e:
                 print("Error:\n", "设置博主表列宽时发生错误：", str(e))
 
-                export_report(path, file_url, "整理博主表时设置列宽时出错")
         adjusted_width = (max_length + 2)
         ws.column_dimensions[get_column_letter(col_num)].width = adjusted_width
     # # 得到文件名（不含扩展名）
+    with open(data_info_path, "r", encoding="utf-8") as file_path:
+        file_url = file_path.read()
     filename_without_ext = os.path.splitext(os.path.basename(file_url))[0]
-    # 得到文件所在目录
-    dir_name = os.path.dirname(file_url)
     # 构造新文件名（可以自行修改格式）
     new_filename = filename_without_ext + "_粉丝收集.xlsx"
     # 得到新文件的完整路径
-    new_file_url = os.path.join(dir_name, new_filename)
+    new_file_url = os.path.join(data_dir, new_filename)
     wb.save(new_file_url)
 
 
-def export_report(reason, *args):
+def load_excel_file():
     """
-        导出报错日志
-    :param reason:
-    :param args:
+        读取Excel文件
+    :return: 读取到的超链接列表
     """
-    global path
-    # 获取当前日期和时间
-    current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-    # 如果传入的是文件路径，获取其目录
-    if os.path.isfile(path):
-        file_path = os.path.dirname(path)
-
-    # 创建日志文件路径
-    log_path = os.path.join(file_path, "报错日志.txt")
-
-    # 尝试写入或创建文件
+    links = []
+    with open(data_info_path, 'r') as data_path:
+        path = data_path.read().strip()
+    print("excel file path:", path)
     try:
-        with open(log_path, 'a', encoding='utf-8') as f:
-            for arg in args:
-                if isinstance(arg, int):  # 如果是数字
-                    f.write(f"{current_time}---第{arg}条链接异常,已自动跳过,原因:{reason}\n\n")
-                elif isinstance(arg, str):  # 如果是文本
-                    f.write(f"{current_time}---{arg},原因是{reason}\n\n")
+        wb = load_workbook(filename=path)
+        ws = wb.active
+        for row in ws.iter_rows():
+            for cell in row:
+                link = cell.hyperlink.target if cell.hyperlink else None
+                if link:
+                    # 使用文件名作为键，并添加超链接到列表中
+                    links.append(link)
+                else:
+                    links.append("")
     except Exception as e:
-        print("Error:", "写入报错日志时发生错误:", str(e))
-        handle_error(f"写入报错日志时发生错误:{str(e)}")
+        print("Error:\n", "读取文件时出错:", str(e))
+    return links
+
+
+def load_json_file():
+    """
+        读取cookie文件
+    """
+    try:
+        with open(cookie_info_path, 'r') as cookie_file_path:
+            path = cookie_file_path.read().strip()
+        print("cookie file path:", path)
+        with open(path, 'r') as cookie_file:
+            cookie_datas = json.load(cookie_file)
+        global xhs_cookie, pgy_cookie
+        xhs_cookie = cookie_datas['cookie1']
+        pgy_cookie = cookie_datas['cookie2']
+    except Exception as e:
+        print(e)
+        print("读取cookie文件时出错：cookie文件失效或缺失")
 
 
 def get_redirected_url(url):
@@ -365,7 +285,7 @@ def get_redirected_url(url):
     :param url: 原链接
     :return: 新链接
     """
-    res = requests.get(url, headers=headers, cookies=self_cookie1, allow_redirects=True)
+    res = requests.get(url, headers=headers, cookies=xhs_cookie, allow_redirects=True)
 
     if res.history:  # 检查是否有重定向历史
         return res.url
@@ -380,7 +300,7 @@ def get_nicker_level(user_id):
     """
     global current_fans_num, current_nicker
     url = f"https://www.xiaohongshu.com/user/profile/{user_id}"
-    res = requests.get(url, headers=headers, cookies=self_cookie1)
+    res = requests.get(url, headers=headers, cookies=xhs_cookie)
     if res.status_code == 200:
         fans_pattern = r'<span class="count"[^>]*>([\d.]+[^\d\s]*)?</span><span class="shows"[^>]*>粉丝</span>'
         fans_match = re.search(fans_pattern, res.text)
@@ -440,7 +360,6 @@ def get_note_ids_from_links(links):
                 note_ids.append(note_id)
         except Exception as e:
             print("Error:\n", f" 第{links.index(link) + 1}条有问题,问题原因: {str(e)},将跳过该条")
-            export_report(str(e), links.index(link) + 1)
             note_ids.append("None")
     return note_ids
 
@@ -457,19 +376,20 @@ def get_data(note_ids):
             data_ids.append("None")
             continue
         url = f"https://pgy.xiaohongshu.com/api/solar/note/{note_id}/detail?bizCode="
-        res = requests.get(url, cookies=self_cookie2)
+        res = requests.get(url, cookies=pgy_cookie)
         print(res.status_code, url)
         if res.status_code != 200:
             print(
-                f"第{note_ids.index(note_id) + 1}条访问code{res.status_code},cookie2可能已过期，请获取蒲公英用户帖子detail接口的cookie并替换掉cookies.json的cookie2")
-            handle_error(
-                f"第{note_ids.index(note_id) + 1}条访问code{res.status_code},cookie2可能已过期，请获取蒲公英用户帖子detail接口的cookie并替换掉cookies.json的cookie2")
+                f"第{note_ids.index(note_id) + 1}条访问code{res.status_code},cookie2可能已过期，请获取蒲公英用户帖子detail接口的cookie"
+                f"并替换掉cookies.json的cookie2")
             break
         else:
             data = json.loads(res.text)
             user_id = data["data"]["userId"]
-            response = requests.get(f"https://pgy.xiaohongshu.com/api/solar/kol/dataV2/notesDetail?advertiseSwitch=1&orderType=1&pageNumber=1"
-                                    f"&pageSize=999&userId={user_id}&noteType=4", headers=headers, cookies=self_cookie2)
+            response = requests.get(
+                f"https://pgy.xiaohongshu.com/api/solar/kol/dataV2/notesDetail?advertiseSwitch=1&orderType=1"
+                f"&pageNumber=1"
+                f"&pageSize=999&userId={user_id}&noteType=4", headers=headers, cookies=pgy_cookie)
             user_data = json.loads(response.text)
             if not user_data["data"]["list"]:
                 collected = False
@@ -492,10 +412,11 @@ def get_data(note_ids):
                 cmt_num = data_fix(data["data"]["cmtNum"], 10)
                 interact_num = data_fix(data["data"], 11)
                 interact_level = data_fix(interact_num, 12)
-                data_ids.append([create_time, nick_name, nick_level, note_title, note_link, note_type, read_num, interact_num, like_num,
-                                 fav_num, cmt_num, interact_level, remark])
-            elif collected == False and hide == False:
-                Ui_data = requests.get(note_link, headers=headers, cookies=self_cookie1)
+                data_ids.append(
+                    [create_time, nick_name, nick_level, note_title, note_link, note_type, read_num, interact_num,
+                     like_num,
+                     fav_num, cmt_num, interact_level, remark])
+            elif collected is False and hide is False:
                 create_time = data_fix(data["data"]["createTime"], 1)
                 nick_name = data_fix(data["data"]["userInfo"], 2)
                 nick_level = get_nicker_level(user_id)
@@ -512,9 +433,11 @@ def get_data(note_ids):
                 cmt_num = interact_list[3]
                 interact_level = data_fix(interact_num, 12)
                 remark = "帖子正常,但作者未被收录"
-                data_ids.append([create_time, nick_name, nick_level, note_title, note_link, note_type, read_num, interact_num, like_num,
-                                 fav_num, cmt_num, interact_level, remark])
-            elif collected == False and hide == True:
+                data_ids.append(
+                    [create_time, nick_name, nick_level, note_title, note_link, note_type, read_num, interact_num,
+                     like_num,
+                     fav_num, cmt_num, interact_level, remark])
+            elif collected is False and hide is True:
                 create_time = "None"
                 nick_name = "None"
                 nick_level = "None"
@@ -527,8 +450,10 @@ def get_data(note_ids):
                 cmt_num = "None"
                 interact_level = ""
                 remark = "k帖子已被隐藏且博主未被收录"
-                data_ids.append([create_time, nick_name, nick_level, note_title, note_link, note_type, read_num, interact_num, like_num,
-                                 fav_num, cmt_num, interact_level, remark])
+                data_ids.append(
+                    [create_time, nick_name, nick_level, note_title, note_link, note_type, read_num, interact_num,
+                     like_num,
+                     fav_num, cmt_num, interact_level, remark])
     return data_ids
 
 
@@ -539,7 +464,6 @@ def data_fix(data, data_type):
     :param data_type: 数据处理类型
     """
     global hide, current_fans_num
-    fix_data = None
     if data_type == 1:
         if "今天" in data:
             fix_data = datetime.now().strftime('%Y-%m-%d')
@@ -611,7 +535,7 @@ def data_fix(data, data_type):
             return "互动量异常"
 
     elif data_type == 13:
-        res = requests.get(data, headers=headers, cookies=self_cookie1)
+        res = requests.get(data, headers=headers, cookies=xhs_cookie)
         if res.status_code == 200:
             hide = False
             return "帖子正常"
@@ -633,19 +557,19 @@ def get_nicker_and_fans(links):
         print(link)
         try:
             user_id = re.search(r"profile/([^/?]+)", link).group(1)
-        except Exception as e:
-            export_report(str(e), links.index(link) + 1)
+        except AttributeError:
             data_ids.append(["None", "None", f"该链接有问题,链接位置{links.index(link) + 1}"])
             continue
 
-        url = f"https://pgy.xiaohongshu.com/api/solar/kol/dataV2/notesDetail?advertiseSwitch=1&orderType=1&pageNumber=1&pageSize=999&userId={user_id}&noteType=4"
-        response = requests.get(url, headers=headers, cookies=self_cookie2)
+        url = f"https://pgy.xiaohongshu.com/api/solar/kol/dataV2/notesDetail?advertiseSwitch=1&orderType=1&pageNumber" \
+              f"=1&pageSize=999&userId={user_id}&noteType=4"
+        response = requests.get(url, headers=headers, cookies=pgy_cookie)
         if response.status_code == 200:
             data_json = json.loads(response.text)
             if data_json["data"]["list"]:
                 note_id = data_json["data"]["list"][0]["noteId"]
                 url = f"https://pgy.xiaohongshu.com/api/solar/note/{note_id}/detail?bizCode="
-                res = requests.get(url, cookies=self_cookie2)
+                res = requests.get(url, cookies=pgy_cookie)
                 data_json = json.loads(res.text)
                 nick_name = data_fix(data_json["data"]["userInfo"], 2)
                 data_fix(data_json["data"]["userInfo"], 3)
@@ -659,11 +583,11 @@ def get_nicker_and_fans(links):
 
         else:
             print(
-                f"第{links.index(link) + 1}条访问code{response.status_code},cookie2可能已过期，请获取蒲公英用户帖子detail接口的cookie并替换掉cookies.json的cookie2")
-            handle_error(
-                f"第{links.index(link) + 1}条访问code{response.status_code},cookie2可能已过期，请获取蒲公英用户帖子detail接口的cookie并替换掉cookies.json的cookie2")
+                f"第{links.index(link) + 1}条访问code{response.status_code},cookie2可能已过期，请获取蒲公英用户帖子detail接口的cookie"
+                f"并替换掉cookies.json的cookie2")
             break
     return data_ids
+
 
 # get_nicker_and_fans(["https://www.xiaohongshu.com/user/profile/62668fd2000000001000cb82"])
 
@@ -672,11 +596,9 @@ def get_uncollected_note_data(note_id):
         获取未收录的笔记数据
     :param note_id:
     """
-    res = requests.get(f"https://www.xiaohongshu.com/explore/{note_id}", headers=headers, cookies=self_cookie1)
+    res = requests.get(f"https://www.xiaohongshu.com/explore/{note_id}", headers=headers, cookies=xhs_cookie)
     if res.status_code != 200:
         print(
-            f"note_id为{note_id}的访问code{res.status_code},cookie1可能已过期，请获取小红书用户登录me接口的cookie并替换掉cookies.json的cookie1")
-        handle_error(
             f"note_id为{note_id}的访问code{res.status_code},cookie1可能已过期，请获取小红书用户登录me接口的cookie并替换掉cookies.json的cookie1")
     else:
         note_data = res.text
@@ -689,3 +611,34 @@ def get_uncollected_note_data(note_id):
         interact_num = like_num + collect_num + comment_num
         return [interact_num, like_num, collect_num, comment_num]
 
+
+def send_email_with_attachments(to_email, dir_path):
+    smtp_server = email_server
+    port = 587
+    sender_email = manager_email
+    sender_password = email_pass
+
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = to_email
+    msg['Subject'] = email_subject
+    msg.attach(MIMEText(email_body, 'plain'))
+
+    # List all files in the directory
+    files = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
+
+    for file in files:
+        file_path = os.path.join(dir_path, file)
+        with open(file_path, 'rb') as f:
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload(f.read())
+            encoders.encode_base64(part)
+            part.add_header('Content-Disposition', 'attachment',
+                            filename=(Header(os.path.basename(file_path), 'utf-8').encode()))
+            msg.attach(part)
+
+    with smtplib.SMTP(smtp_server, port) as server:
+        server.starttls()
+        server.login(sender_email, sender_password)
+        server.sendmail(sender_email, to_email, msg.as_string())
+    print("邮件发送成功")

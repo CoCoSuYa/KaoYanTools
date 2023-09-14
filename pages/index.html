@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="statics/css/index_style.css">
+    <link rel="stylesheet" href="statics/css/btn_style.css">
     <script>
         function uploadFile(inputElementId, formId) {
             const fileInput = document.getElementById(inputElementId);
@@ -36,22 +37,18 @@
     <title>文件操作</title>
 </head>
 <body onload="checkProcessButtonStatus();">
-    <div class="center">
-
-        <br>
+    <div class="container">
         <form id="excelForm" action="/upload-excel" method="post" enctype="multipart/form-data">
             <input type="file" id="excelInput" name="excel_file" accept=".xls, .xlsx" style="display: none;">
-            <button type="button" onclick="document.getElementById('excelInput').click(); uploadFile('excelInput', 'excelForm')">数据上传</button>
+            <button type="button" class="btn btn-up" onclick="document.getElementById('excelInput').click(); uploadFile('excelInput', 'excelForm')">数据上传</button>
         </form>
-
         <form id="jsonForm" action="/upload-json" method="post" enctype="multipart/form-data">
             <input type="file" id="jsonInput" name="json_file" accept=".json" style="display: none;">
-            <button type="button" onclick="document.getElementById('jsonInput').click(); uploadFile('jsonInput', 'jsonForm')">Cookie上传</button>
+            <button type="button" class="btn btn-left" onclick="document.getElementById('jsonInput').click(); uploadFile('jsonInput', 'jsonForm')">Cookie上传</button>
         </form>
-
         <form id="emailForm" action="/process-data" method="post">
             <input type="email" id="emailInput" name="emailInput" placeholder="请输入您的邮箱">
-            <button type="submit" id="submit" {% if not has_excel or not has_json %}disabled{% endif %}>处理文件</button>
+            <button type="submit" class="btn btn-right" id="submit" {% if not has_excel or not has_json %}disabled{% endif %}>处理文件</button>
         </form>
     </div>
 </body>
