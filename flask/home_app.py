@@ -1,7 +1,6 @@
 import glob
 import os
 import re
-import sys
 from multiprocessing import Process
 from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages
 
@@ -9,7 +8,6 @@ from HandleFile.handleFileData import handle_file_data
 
 app = Flask(__name__, template_folder='../pages', static_folder='../pages/statics')
 app.secret_key = 'some_secret'
-sys.path.append("/root/My_Projects/KaoYanTools")
 
 def run_in_new_process(func, *args):
     p = Process(target=func, args=args)
