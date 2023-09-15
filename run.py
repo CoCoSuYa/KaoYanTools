@@ -1,9 +1,4 @@
-import sys
-
-sys.path.append('.')
-
-
-from flask.home_app import app
+from flask_api import home_app
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    home_app.app.run(host='0.0.0.0', debug=True)
