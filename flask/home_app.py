@@ -3,11 +3,11 @@ import os
 import re
 from multiprocessing import Process
 from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages
-
 from HandleFile.handleFileData import handle_file_data
 
 app = Flask(__name__, template_folder='../pages', static_folder='../pages/statics')
 app.secret_key = 'some_secret'
+
 
 def run_in_new_process(func, *args):
     p = Process(target=func, args=args)
@@ -118,6 +118,3 @@ def process_data():
     flash('请求提交成功，请等待几分钟后检查邮箱获取数据！')
     return redirect(url_for('index'))
 
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
