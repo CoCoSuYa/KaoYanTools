@@ -13,9 +13,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 
-data_info_path = '../backup/data_info'
-cookie_info_path = '../backup/cookie_info'
-data_dir = '../datas/'
+data_info_path = os.environ.get('data_info_file_path')
+cookie_info_path = os.environ.get('cookie_info_file_path')
+data_dir = os.environ.get('datas_dir')
 xhs_cookie = ""
 pgy_cookie = ""
 hide, collected, current_fans_num, current_nicker, start_of_week, end_of_week = 0, 0, 0, 0, 0, 0
@@ -127,7 +127,10 @@ def write_data_excel_file(data_ids):
     # 得到新文件的完整路径
     new_file_url = os.path.join(data_dir, new_filename)
     print(new_file_url)
-    wb.save(new_file_url)
+    # 使用os.path.abspath确保路径是绝对的
+    absolute_path = os.path.abspath(new_file_url)
+    print(absolute_path)
+    wb.save(absolute_path)
 
 
 def write_date_excel_file(data_ids):
@@ -191,7 +194,10 @@ def write_date_excel_file(data_ids):
         # 得到新文件的完整路径
         new_file_url = os.path.join(data_dir, new_filename)
         print(new_file_url)
-        wb.save(new_file_url)
+        # 使用os.path.abspath确保路径是绝对的
+        absolute_path = os.path.abspath(new_file_url)
+        print(absolute_path)
+        wb.save(absolute_path)
 
 
 def write_up_fans_excel_file(data_ids):
@@ -233,7 +239,11 @@ def write_up_fans_excel_file(data_ids):
     new_filename = filename_without_ext + "_粉丝收集.xlsx"
     # 得到新文件的完整路径
     new_file_url = os.path.join(data_dir, new_filename)
-    wb.save(new_file_url)
+    print(new_file_url)
+    # 使用os.path.abspath确保路径是绝对的
+    absolute_path = os.path.abspath(new_file_url)
+    print(absolute_path)
+    wb.save(absolute_path)
 
 
 def load_excel_file():

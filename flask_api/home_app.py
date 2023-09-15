@@ -7,6 +7,15 @@ from HandleFile.handleFileData import handle_file_data
 
 app = Flask(__name__, template_folder='../pages', static_folder='../pages/statics')
 app.secret_key = 'some_secret'
+base_dir = os.path.dirname(os.path.abspath(__file__))
+backup_dir = os.path.join(base_dir, '../backup')
+datas_dir = os.path.join(base_dir, '../datas')
+data_info_file_path = os.path.join(backup_dir, 'data_info')
+cookie_info_file_path = os.path.join(backup_dir, 'cookie_info')
+os.environ["backup_dir"] = backup_dir
+os.environ["datas_dir"] = datas_dir
+os.environ["data_info_file_path"] = data_info_file_path
+os.environ["cookie_info_file_path"] = cookie_info_file_path
 
 
 def run_in_new_process(func, *args):
@@ -26,7 +35,8 @@ def index():
                 return redirect(request.url)
             if excel_file and allowed_excel(excel_file.filename):
                 filename = excel_file.filename
-                excel_file.save(os.path.join('../backup', filename))
+                excel_file.save(os.path.join(backup_dir, filename))
+                print(os.path.join(backup_dir, filename))
                 flash('数据文件上传成功!')
                 return redirect(request.url)
 
@@ -38,14 +48,15 @@ def index():
                 return redirect(request.url)
             if json_file and allowed_json(json_file.filename):
                 filename = json_file.filename
-                json_file.save(os.path.join('../backup', filename))
+                json_file.save(os.path.join(backup_dir, filename))
+                print(os.path.join(backup_dir, filename))
                 flash('Cookie文件上传成功!')
                 return redirect(request.url)
 
-    if not os.path.exists('../backup/'):
-        os.makedirs('../backup/')
-    excel_files = glob.glob('../backup/*.xls*')
-    json_files = glob.glob('../backup/*.json')
+    if not os.path.exists(backup_dir):
+        os.makedirs(backup_dir)
+    excel_files = glob.glob(os.path.join(backup_dir, '*.xls*'))
+    json_files = glob.glob(os.path.join(backup_dir, '*.json'))
 
     has_excel = len(excel_files) > 0
     has_json = len(json_files) > 0
@@ -70,11 +81,11 @@ def upload_excel():
         return redirect(url_for('index'))
     if excel_file and allowed_excel(excel_file.filename):
         filename = excel_file.filename
-        save_path = os.path.join('../backup', filename)
+        save_path = os.path.join(backup_dir, filename)
         excel_file.save(save_path)
 
         # 保存数据文件路径信息
-        with open('../backup/data_info', 'w') as data_info_file:
+        with open(data_info_file_path, 'w') as data_info_file:
             data_info_file.write(save_path)
 
         flash('数据文件上传成功!')
@@ -91,11 +102,11 @@ def upload_json():
         return redirect(url_for('index'))
     if json_file and allowed_json(json_file.filename):
         filename = json_file.filename
-        save_path = os.path.join('../backup', filename)
+        save_path = os.path.join(backup_dir, filename)
         json_file.save(save_path)
 
         # 保存Cookie文件路径信息
-        with open('../backup/cookie_info', 'w') as cookie_info_file:
+        with open(cookie_info_file_path, 'w') as cookie_info_file:
             cookie_info_file.write(save_path)
 
         flash('Cookie文件上传成功!')
@@ -114,7 +125,7 @@ def process_data():
         flash('请提供一个有效的电子邮件地址！')
         return redirect(url_for('index'))
 
-    run_in_new_process(handle_file_data, email, "../datas")
+    run_in_new_process(handle_file_data, email, datas_dir)
     flash('请求提交成功，请等待几分钟后检查邮箱获取数据！')
     return redirect(url_for('index'))
 
