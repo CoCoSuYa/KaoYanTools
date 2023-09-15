@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import time
 from datetime import datetime, timedelta
 import requests
 from openpyxl.reader.excel import load_workbook
@@ -296,7 +297,7 @@ def get_redirected_url(url):
     :return: 新链接
     """
     res = requests.get(url, headers=headers, cookies=xhs_cookie, allow_redirects=True)
-
+    time.sleep(5)
     if res.history:  # 检查是否有重定向历史
         return res.url
     else:
@@ -311,14 +312,15 @@ def get_nicker_level(user_id):
     global current_fans_num, current_nicker
     url = f"https://www.xiaohongshu.com/user/profile/{user_id}"
     res = requests.get(url, headers=headers, cookies=xhs_cookie)
+    time.sleep(5)
     if res.status_code == 200:
         fans_pattern = r'<span class="count"[^>]*>([\d.]+[^\d\s]*)?</span><span class="shows"[^>]*>粉丝</span>'
         fans_match = re.search(fans_pattern, res.text)
         fans_num = fans_match.group(1)
-
         nicker_pattern = r'class="user-name"[^>]*>([^<]+)'
         nicker_match = re.search(nicker_pattern, res.text)
         current_nicker = nicker_match.group(1).strip()
+        print("博主：", current_nicker, "粉丝数：", fans_num)
         if '万' not in fans_num:
             current_fans_num = int(fans_num)
             if 0 < int(fans_num) < 3000:
@@ -355,17 +357,13 @@ def get_note_ids_from_links(links):
             else:
                 url = get_redirected_url(link)
                 if "item" in url:
-                    print(re.findall(r'item/(\w+)', url))
                     note_id = re.findall(r'item/(\w+)', url)[0]
                 elif "website-login" in url:
                     if "item" in url:
-                        print(re.findall(r'item%2F(\w+)', url))
                         note_id = re.findall(r'item%2F(\w+)', url)[0]
                     else:
-                        print(re.findall(r'explore%2F(\w+)', url))
                         note_id = re.findall(r'explore%2F(\w+)', url)[0]
                 else:
-                    print(re.findall(r'explore/(\w+)', url))
                     note_id = re.findall(r'explore/(\w+)', url)[0]
                 note_ids.append(note_id)
         except Exception as e:
@@ -387,7 +385,7 @@ def get_data(note_ids):
             continue
         url = f"https://pgy.xiaohongshu.com/api/solar/note/{note_id}/detail?bizCode="
         res = requests.get(url, cookies=pgy_cookie)
-        print(res.status_code, url)
+        time.sleep(5)
         if res.status_code != 200:
             print(
                 f"第{note_ids.index(note_id) + 1}条访问code{res.status_code},cookie2可能已过期，请获取蒲公英用户帖子detail接口的cookie"
@@ -400,6 +398,7 @@ def get_data(note_ids):
                 f"https://pgy.xiaohongshu.com/api/solar/kol/dataV2/notesDetail?advertiseSwitch=1&orderType=1"
                 f"&pageNumber=1"
                 f"&pageSize=999&userId={user_id}&noteType=4", headers=headers, cookies=pgy_cookie)
+            time.sleep(5)
             user_data = json.loads(response.text)
             if not user_data["data"]["list"]:
                 collected = False
@@ -546,6 +545,7 @@ def data_fix(data, data_type):
 
     elif data_type == 13:
         res = requests.get(data, headers=headers, cookies=xhs_cookie)
+        time.sleep(5)
         if res.status_code == 200:
             hide = False
             return "帖子正常"
@@ -574,12 +574,14 @@ def get_nicker_and_fans(links):
         url = f"https://pgy.xiaohongshu.com/api/solar/kol/dataV2/notesDetail?advertiseSwitch=1&orderType=1&pageNumber" \
               f"=1&pageSize=999&userId={user_id}&noteType=4"
         response = requests.get(url, headers=headers, cookies=pgy_cookie)
+        time.sleep(5)
         if response.status_code == 200:
             data_json = json.loads(response.text)
             if data_json["data"]["list"]:
                 note_id = data_json["data"]["list"][0]["noteId"]
                 url = f"https://pgy.xiaohongshu.com/api/solar/note/{note_id}/detail?bizCode="
                 res = requests.get(url, cookies=pgy_cookie)
+                time.sleep(5)
                 data_json = json.loads(res.text)
                 nick_name = data_fix(data_json["data"]["userInfo"], 2)
                 data_fix(data_json["data"]["userInfo"], 3)
@@ -607,6 +609,7 @@ def get_uncollected_note_data(note_id):
     :param note_id:
     """
     res = requests.get(f"https://www.xiaohongshu.com/explore/{note_id}", headers=headers, cookies=xhs_cookie)
+    time.sleep(5)
     if res.status_code != 200:
         print(
             f"note_id为{note_id}的访问code{res.status_code},cookie1可能已过期，请获取小红书用户登录me接口的cookie并替换掉cookies.json的cookie1")
