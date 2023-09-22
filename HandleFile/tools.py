@@ -297,10 +297,12 @@ def get_redirected_url(url):
     :return: 新链接
     """
     res = requests.get(url, headers=headers, cookies=xhs_cookie, allow_redirects=True)
-    time.sleep(5)
+    time.sleep(2)
     if res.history:  # 检查是否有重定向历史
+        print(res.url)
         return res.url
     else:
+        print(url)
         return url
 
 
@@ -354,6 +356,7 @@ def get_note_ids_from_links(links):
         try:
             if link == "":
                 note_ids.append("None")
+                print("第", links.index(link) + 1, "条帖子id:", "None")
             else:
                 url = get_redirected_url(link)
                 if "item" in url:
@@ -366,6 +369,7 @@ def get_note_ids_from_links(links):
                 else:
                     note_id = re.findall(r'explore/(\w+)', url)[0]
                 note_ids.append(note_id)
+                print("第", links.index(link) + 1, "条帖子id:", note_id)
         except Exception as e:
             print("Error:\n", f" 第{links.index(link) + 1}条有问题,问题原因: {str(e)},将跳过该条")
             note_ids.append("None")
@@ -385,7 +389,7 @@ def get_data(note_ids):
             continue
         url = f"https://pgy.xiaohongshu.com/api/solar/note/{note_id}/detail?bizCode="
         res = requests.get(url, cookies=pgy_cookie)
-        time.sleep(5)
+        time.sleep(2)
         if res.status_code != 200:
             print(
                 f"第{note_ids.index(note_id) + 1}条访问code{res.status_code},cookie2可能已过期，请获取蒲公英用户帖子detail接口的cookie"
@@ -398,7 +402,7 @@ def get_data(note_ids):
                 f"https://pgy.xiaohongshu.com/api/solar/kol/dataV2/notesDetail?advertiseSwitch=1&orderType=1"
                 f"&pageNumber=1"
                 f"&pageSize=999&userId={user_id}&noteType=4", headers=headers, cookies=pgy_cookie)
-            time.sleep(5)
+            time.sleep(3)
             user_data = json.loads(response.text)
             if not user_data["data"]["list"]:
                 collected = False
@@ -421,6 +425,7 @@ def get_data(note_ids):
                 cmt_num = data_fix(data["data"]["cmtNum"], 10)
                 interact_num = data_fix(data["data"], 11)
                 interact_level = data_fix(interact_num, 12)
+                print("第", note_ids.index(note_id) + 1, "条帖子数据获取成功")
                 data_ids.append(
                     [create_time, nick_name, nick_level, note_title, note_link, note_type, read_num, interact_num,
                      like_num,
@@ -442,6 +447,7 @@ def get_data(note_ids):
                 cmt_num = interact_list[3]
                 interact_level = data_fix(interact_num, 12)
                 remark = "帖子正常,但作者未被收录"
+                print("第", note_ids.index(note_id) + 1, "条帖子数据获取成功")
                 data_ids.append(
                     [create_time, nick_name, nick_level, note_title, note_link, note_type, read_num, interact_num,
                      like_num,
@@ -459,6 +465,7 @@ def get_data(note_ids):
                 cmt_num = "None"
                 interact_level = ""
                 remark = "k帖子已被隐藏且博主未被收录"
+                print("第", note_ids.index(note_id) + 1, "条帖子数据获取成功")
                 data_ids.append(
                     [create_time, nick_name, nick_level, note_title, note_link, note_type, read_num, interact_num,
                      like_num,
