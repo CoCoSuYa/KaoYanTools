@@ -1,5 +1,6 @@
 import json
 import os
+import random
 import re
 import time
 from datetime import datetime, timedelta
@@ -82,8 +83,7 @@ def write_data_excel_file(data_ids):
     wb = Workbook()
     ws = wb.active
     try:
-        title_list = ["发布时间", "昵称", "博主等级", "笔记标题/链接", "笔记形式", "阅读量", "互动量", "点赞数",
-                      "收藏数",
+        title_list = ["发布时间", "昵称", "博主等级", "笔记标题/链接", "笔记形式", "互动量", "点赞数", "收藏数",
                       "评论数", "爆文情况", "备注"]
 
         # 填写标题
@@ -93,7 +93,7 @@ def write_data_excel_file(data_ids):
         # 填写数据
         for row in range(len(data_ids)):
             row += 2
-            for col in range(13):
+            for col in range(12):
                 col += 1
                 if data_ids[row - 2] == "None":
                     ws.cell(row=row, column=col, value="")
@@ -297,7 +297,7 @@ def get_redirected_url(url):
     :return: 新链接
     """
     res = requests.get(url, headers=headers, cookies=xhs_cookie, allow_redirects=True)
-    time.sleep(2)
+    time.sleep(random.randint(1, 5))
     if res.history:  # 检查是否有重定向历史
         print(res.url)
         return res.url
@@ -464,7 +464,7 @@ def get_data(note_ids):
                 fav_num = "None"
                 cmt_num = "None"
                 interact_level = ""
-                remark = "k帖子已被隐藏且博主未被收录"
+                remark = "帖子已被隐藏且博主未被收录"
                 print("第", note_ids.index(note_id) + 1, "条帖子数据获取成功")
                 data_ids.append(
                     [create_time, nick_name, nick_level, note_title, note_link, note_type, read_num, interact_num,
@@ -662,3 +662,116 @@ def send_email_with_attachments(to_email, dir_path):
         server.login(sender_email, sender_password)
         server.sendmail(sender_email, to_email, msg.as_string())
     print("邮件发送成功")
+
+
+# send_email_with_attachments("jiayu.li@shanbay.com", "../datas/")
+def extract_text(text):
+    pattern = r"(?<=window.__INITIAL_STATE__=).*(?=</script>)"
+    match = re.search(pattern, text, re.DOTALL)
+    if match:
+        result = match.group(0)
+        end = result.find('</script>')  # find the first '</script>'
+        if end != -1:
+            result = result[:end].strip()
+        return result
+    else:
+        return None
+
+
+def get_nicker_level_by_user_id(user_id):
+    """
+            获取博主等级
+        :param user_id:
+    """
+    url = f"https://www.xiaohongshu.com/user/profile/{user_id}"
+    res = requests.get(url, headers=headers, cookies=xhs_cookie)
+    time.sleep(random.randint(1, 4))
+    if res.status_code == 200:
+        initial_state_str = extract_text(res.text)
+        initial_state_str = initial_state_str.replace('undefined', '"undefined"')
+        initial_state = json.loads(initial_state_str)
+        nicker_datas = initial_state["user"]["userPageData"]['interactions']
+        print(nicker_datas)
+        for nicker_data in nicker_datas:
+            if nicker_data["type"] == "fans":
+                fans_num = nicker_data["count"]
+                if 0 < int(fans_num) < 3000:
+                    return "新兴"
+                elif 3000 <= int(fans_num) < 5000:
+                    return "普通"
+                elif 5000 <= int(fans_num) < 50000:
+                    return "初级"
+                elif 50000 <= fans_num < 500000:
+                    return "腰部"
+                elif fans_num >= 500000:
+                    return "头部"
+    else:
+        return "博主已注销"
+
+
+def get_note_data(note_ids):
+    data_ids = []
+    for note_id in note_ids:
+        print("开始处理第", note_ids.index(note_id) + 1, "条数据")
+        if note_id == "None":
+            data_ids.append("None")
+            print("链接", note_ids.index(note_id) + 1, "有问题,置为None")
+            continue
+        res = requests.get(f"https://www.xiaohongshu.com/explore/{note_id}", headers=headers, cookies=xhs_cookie)
+        if res.status_code == 200:
+            initial_state_str = extract_text(res.text)
+            initial_state_str = initial_state_str.replace('undefined', '"undefined"')
+            initial_state = json.loads(initial_state_str)
+            timestamp_ms = int(initial_state["note"]["noteDetailMap"][note_id]["note"]["time"])
+            timestamp_s = timestamp_ms / 1000  # Convert to seconds
+            date = datetime.fromtimestamp(timestamp_s)
+            formatted_date = date.strftime('%Y-%m-%d')
+            nicker_name = initial_state["note"]["noteDetailMap"][note_id]["note"]["user"]["nickname"]
+            nicker_id = initial_state["note"]["noteDetailMap"][note_id]["note"]["user"]["userId"]
+            time.sleep(random.randint(4, 6))
+            nicker_level = get_nicker_level_by_user_id(nicker_id)
+            if initial_state["note"]["noteDetailMap"][note_id]["note"]["title"] != "":
+                note_title = initial_state["note"]["noteDetailMap"][note_id]["note"]["title"]
+            else:
+                note_title = initial_state["note"]["noteDetailMap"][note_id]["note"]["desc"][0:30]
+            if initial_state["note"]["noteDetailMap"][note_id]["note"]["type"] == "video":
+                note_type = "视频"
+            else:
+                note_type = "图文"
+            like_num = initial_state["note"]["noteDetailMap"][note_id]["note"]["interactInfo"]["likedCount"]
+            collect_num = initial_state["note"]["noteDetailMap"][note_id]["note"]["interactInfo"]["collectedCount"]
+            comment_num = initial_state["note"]["noteDetailMap"][note_id]["note"]["interactInfo"]["commentCount"]
+            interact_num = int(like_num) + int(collect_num) + int(comment_num)
+            if 0 <= interact_num < 1000:
+                note_level = ""
+            elif 1000 <= interact_num < 5000:
+                note_level = "小爆文"
+            elif 5000 <= interact_num < 10000:
+                note_level = "中爆文"
+            elif 10000 <= interact_num:
+                note_level = "大爆文"
+            else:
+                note_level = "互动量异常"
+            data_ids.append([formatted_date, nicker_name, nicker_level, note_title,
+                             f"https://www.xiaohongshu.com/explore/{note_id}", note_type, interact_num, like_num,
+                             collect_num, comment_num, note_level, "帖子正常"])
+            print([formatted_date, nicker_name, nicker_level, note_title,
+                   f"https://www.xiaohongshu.com/explore/{note_id}", note_type, interact_num, like_num,
+                   collect_num, comment_num, note_level, "帖子正常"])
+            print("第", note_ids.index(note_id) + 1, "条数据处理完成")
+        elif res.status_code == 404:
+            data_ids.append(["", "", "", "", f"https://www.xiaohongshu.com/explore/{note_id}",
+                             "", "", "", "", "", "", "帖子已被删除"])
+            print(["", "", "", "", f"https://www.xiaohongshu.com/explore/{note_id}",
+                   "", "", "", "", "", "", "帖子已被删除"])
+            print("第", note_ids.index(note_id) + 1, "条数据处理完成")
+        elif res.status_code == 403:
+            data_ids.append(["", "", "", "", f"https://www.xiaohongshu.com/explore/{note_id}",
+                             "", "", "", "", "", "", "帖子已被隐藏"])
+            print(["", "", "", "", f"https://www.xiaohongshu.com/explore/{note_id}",
+                   "", "", "", "", "", "", "帖子已被隐藏"])
+            print("第", note_ids.index(note_id) + 1, "条数据处理完成")
+        else:
+            print("cookie失效,获取cookie后重试")
+
+    return data_ids
