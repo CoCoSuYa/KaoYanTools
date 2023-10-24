@@ -309,53 +309,13 @@ def get_redirected_url(url):
     :return: 新链接
     """
     res = requests.get(url, headers=headers, cookies=xhs_cookie, allow_redirects=True)
-    time.sleep(random.randint(1, 5))
+    time.sleep(random.randint(1, 3))
     if res.history:  # 检查是否有重定向历史
         print(res.url)
         return res.url
     else:
         print(url)
         return url
-
-
-def get_nicker_level(user_id):
-    """
-        获取博主等级
-    :param user_id:
-    """
-    global current_fans_num, current_nicker
-    url = f"https://www.xiaohongshu.com/user/profile/{user_id}"
-    res = requests.get(url, headers=headers, cookies=xhs_cookie)
-    time.sleep(2)
-    if res.status_code == 200:
-        fans_pattern = r'<span class="count"[^>]*>([\d.]+[^\d\s]*)?</span><span class="shows"[^>]*>粉丝</span>'
-        fans_match = re.search(fans_pattern, res.text)
-        fans_num = fans_match.group(1)
-        nicker_pattern = r'class="user-name"[^>]*>([^<]+)'
-        nicker_match = re.search(nicker_pattern, res.text)
-        current_nicker = nicker_match.group(1).strip()
-        print("博主：", current_nicker, "粉丝数：", fans_num)
-        if '万' not in fans_num:
-            current_fans_num = int(fans_num)
-            if 0 < int(fans_num) < 3000:
-                return "新兴"
-            elif 3000 <= int(fans_num) < 5000:
-                return "普通"
-            elif 5000 <= int(fans_num) < 10000:
-                return "初级"
-        else:
-            current_fans_num = fans_num
-            match = re.match(r"(\d+(\.\d+)?)", fans_num)
-            fans_num = float(match.group(1))
-            fans_num = int(fans_num * 10000)
-            if 10000 <= fans_num < 50000:
-                return "初级"
-            elif 50000 <= fans_num < 500000:
-                return "腰部"
-            elif fans_num >= 500000:
-                return "头部"
-    else:
-        return "博主已注销"
 
 
 def get_note_ids_from_links(links):
@@ -386,262 +346,6 @@ def get_note_ids_from_links(links):
             print("Error:\n", f" 第{links.index(link) + 1}条有问题,问题原因: {str(e)},将跳过该条")
             note_ids.append("None")
     return note_ids
-
-
-def get_data(note_ids):
-    """
-        传入note_id获取帖子数据
-    :param note_ids: 帖子id列表
-    """
-    global hide, collected
-    data_ids = []
-    for note_id in note_ids:
-        if note_id == "None":
-            data_ids.append("None")
-            continue
-        url = f"https://pgy.xiaohongshu.com/api/solar/note/{note_id}/detail?bizCode="
-        res = requests.get(url, cookies=pgy_cookie)
-        time.sleep(2)
-        if res.status_code != 200:
-            print(
-                f"第{note_ids.index(note_id) + 1}条访问code{res.status_code},cookie2可能已过期，请获取蒲公英用户帖子detail接口的cookie"
-                f"并替换掉cookies.json的cookie2")
-            break
-        else:
-            data = json.loads(res.text)
-            user_id = data["data"]["userId"]
-            response = requests.get(
-                f"https://pgy.xiaohongshu.com/api/solar/kol/dataV2/notesDetail?advertiseSwitch=1&orderType=1"
-                f"&pageNumber=1"
-                f"&pageSize=999&userId={user_id}&noteType=4", headers=headers, cookies=pgy_cookie)
-            time.sleep(2)
-            user_data = json.loads(response.text)
-            if not user_data["data"]["list"]:
-                collected = False
-            else:
-                collected = True
-            note_link = data_fix(note_id, 5)
-            remark = data_fix(note_link, 13)
-            if collected:
-                create_time = data_fix(data["data"]["createTime"], 1)
-                nick_name = data_fix(data["data"]["userInfo"], 2)
-                nick_level = data_fix(data["data"]["userInfo"], 3)
-                if data["data"]["title"]:
-                    note_title = data_fix(data["data"]["title"], 4)
-                else:
-                    note_title = data_fix(data["data"]["content"], 4)
-                note_type = data_fix(data["data"]["videoInfo"], 6)
-                read_num = data_fix(data["data"]["readNum"], 7)
-                like_num = data_fix(data["data"]["likeNum"], 8)
-                fav_num = data_fix(data["data"]["favNum"], 9)
-                cmt_num = data_fix(data["data"]["cmtNum"], 10)
-                interact_num = data_fix(data["data"], 11)
-                interact_level = data_fix(interact_num, 12)
-                print("第", note_ids.index(note_id) + 1, "条帖子数据获取成功")
-                data_ids.append(
-                    [create_time, nick_name, nick_level, note_title, note_link, note_type, read_num, interact_num,
-                     like_num,
-                     fav_num, cmt_num, interact_level, remark])
-            elif collected is False and hide is False:
-                create_time = data_fix(data["data"]["createTime"], 1)
-                nick_name = data_fix(data["data"]["userInfo"], 2)
-                nick_level = get_nicker_level(user_id)
-                if data["data"]["title"]:
-                    note_title = data_fix(data["data"]["title"], 4)
-                else:
-                    note_title = data_fix(data["data"]["content"], 4)
-                note_type = data_fix(data["data"]["videoInfo"], 6)
-                read_num = "None"
-                interact_list = get_uncollected_note_data(note_id)
-                interact_num = interact_list[0]
-                like_num = interact_list[1]
-                fav_num = interact_list[2]
-                cmt_num = interact_list[3]
-                interact_level = data_fix(interact_num, 12)
-                remark = "帖子正常,但作者未被收录"
-                print("第", note_ids.index(note_id) + 1, "条帖子数据获取成功")
-                data_ids.append(
-                    [create_time, nick_name, nick_level, note_title, note_link, note_type, read_num, interact_num,
-                     like_num,
-                     fav_num, cmt_num, interact_level, remark])
-            elif collected is False and hide is True:
-                create_time = "None"
-                nick_name = "None"
-                nick_level = "None"
-                note_title = "None"
-                note_type = "None"
-                read_num = "None"
-                interact_num = "None"
-                like_num = "None"
-                fav_num = "None"
-                cmt_num = "None"
-                interact_level = ""
-                remark = "帖子已被隐藏且博主未被收录"
-                print("第", note_ids.index(note_id) + 1, "条帖子数据获取成功")
-                data_ids.append(
-                    [create_time, nick_name, nick_level, note_title, note_link, note_type, read_num, interact_num,
-                     like_num,
-                     fav_num, cmt_num, interact_level, remark])
-    return data_ids
-
-
-def data_fix(data, data_type):
-    """
-        处理未经修复的数据
-    :param data: 源数据
-    :param data_type: 数据处理类型
-    """
-    global hide, current_fans_num
-    if data_type == 1:
-        if "今天" in data:
-            fix_data = datetime.now().strftime('%Y-%m-%d')
-        else:
-            fix_data = data.split(" ")[0]
-        return fix_data
-
-    elif data_type == 2:
-        if data["nickName"]:
-            return data["nickName"]
-        else:
-            return "None"
-
-    elif data_type == 3:
-        current_fans_num = data["fansNum"]
-        if 0 < data["fansNum"] < 3000:
-            return "新兴"
-        elif 3000 <= data["fansNum"] < 5000:
-            return "普通"
-        elif 5000 <= data["fansNum"] < 50000:
-            return "初级"
-        elif 50000 <= data["fansNum"] < 500000:
-            return "腰部"
-        elif data["fansNum"] >= 500000:
-            return "头部"
-        else:
-            return "粉丝数异常”"
-
-    elif data_type == 4:
-        if len(data) > 30:
-            return data[:30]
-        else:
-            return data
-
-    elif data_type == 5:
-        return f"https://www.xiaohongshu.com/explore/{data}"
-
-    elif data_type == 6:
-        if data:
-            return "视频"
-        else:
-            return "图文"
-
-    elif data_type == 7:
-        return data
-
-    elif data_type == 8:
-        return data
-
-    elif data_type == 9:
-        return data
-
-    elif data_type == 10:
-        return data
-
-    elif data_type == 11:
-        return int(data["likeNum"]) + int(data["favNum"]) + int(data["cmtNum"])
-
-    elif data_type == 12:
-        if 0 <= data < 1000:
-            return ""
-        elif 1000 <= data < 5000:
-            return "小爆文"
-        elif 5000 <= data < 10000:
-            return "中爆文"
-        elif 10000 <= data:
-            return "大爆文"
-        else:
-            return "互动量异常"
-
-    elif data_type == 13:
-        res = requests.get(data, headers=headers, cookies=xhs_cookie)
-        time.sleep(2)
-        if res.status_code == 200:
-            hide = False
-            return "帖子正常"
-        elif res.status_code == 404:
-            hide = True
-            return "帖子已被删除"
-        elif res.status_code == 423:
-            hide = True
-            return "帖子被隐藏"
-
-
-def get_nicker_and_fans(links):
-    """
-        传入博主链接获取博主昵称和粉丝数
-    :param links:
-    """
-    data_ids = []
-    for link in links:
-        print(link)
-        try:
-            user_id = re.search(r"profile/([^/?]+)", link).group(1)
-        except AttributeError:
-            data_ids.append(["None", "None", f"该链接有问题,链接位置{links.index(link) + 1}"])
-            continue
-
-        url = f"https://pgy.xiaohongshu.com/api/solar/kol/dataV2/notesDetail?advertiseSwitch=1&orderType=1&pageNumber" \
-              f"=1&pageSize=999&userId={user_id}&noteType=4"
-        response = requests.get(url, headers=headers, cookies=pgy_cookie)
-        time.sleep(2)
-        if response.status_code == 200:
-            data_json = json.loads(response.text)
-            if data_json["data"]["list"]:
-                note_id = data_json["data"]["list"][0]["noteId"]
-                url = f"https://pgy.xiaohongshu.com/api/solar/note/{note_id}/detail?bizCode="
-                res = requests.get(url, cookies=pgy_cookie)
-                time.sleep(2)
-                data_json = json.loads(res.text)
-                nick_name = data_fix(data_json["data"]["userInfo"], 2)
-                data_fix(data_json["data"]["userInfo"], 3)
-                fans_num = current_fans_num
-                data_ids.append([nick_name, fans_num, "博主被蒲公英收录,取蒲公英具体数据"])
-                print("list:", [nick_name, fans_num, "博主被蒲公英收录,取蒲公英具体数据"])
-            else:
-                get_nicker_level(user_id)
-                data_ids.append([current_nicker, current_fans_num, "博主未被蒲公英收录，取博主主页粗数据"])
-                print("profile:", [current_nicker, current_fans_num, "博主未被蒲公英收录，取博主主页粗数据"])
-
-        else:
-            print(
-                f"第{links.index(link) + 1}条访问code{response.status_code},cookie2可能已过期，请获取蒲公英用户帖子detail接口的cookie"
-                f"并替换掉cookies.json的cookie2")
-            break
-    return data_ids
-
-
-# get_nicker_and_fans(["https://www.xiaohongshu.com/user/profile/62668fd2000000001000cb82"])
-
-def get_uncollected_note_data(note_id):
-    """
-        获取未收录的笔记数据
-    :param note_id:
-    """
-    res = requests.get(f"https://www.xiaohongshu.com/explore/{note_id}", headers=headers, cookies=xhs_cookie)
-    time.sleep(2)
-    if res.status_code != 200:
-        print(
-            f"note_id为{note_id}的访问code{res.status_code},cookie1可能已过期，请获取小红书用户登录me接口的cookie并替换掉cookies.json的cookie1")
-    else:
-        note_data = res.text
-        pattern = r'interactInfo":({.*?})'
-        match = re.search(pattern, note_data)
-        json_data = json.loads(match.group(1))
-        like_num = int(json_data["likedCount"])
-        collect_num = int(json_data["collectedCount"])
-        comment_num = int(json_data["commentCount"])
-        interact_num = like_num + collect_num + comment_num
-        return [interact_num, like_num, collect_num, comment_num]
 
 
 def send_email_with_attachments(to_email, dir_path):
@@ -677,6 +381,8 @@ def send_email_with_attachments(to_email, dir_path):
 
 
 send_email_with_attachments("jiayu.li@shanbay.com", "../datas/")
+
+
 def extract_text(text):
     pattern = r"(?<=window.__INITIAL_STATE__=).*(?=</script>)"
     match = re.search(pattern, text, re.DOTALL)
@@ -756,8 +462,10 @@ def get_note_data(note_ids):
                         note_type = "图文"
                     print(initial_state["note"]["noteDetailMap"][note_id]["note"]["interactInfo"])
                     like_num = initial_state["note"]["noteDetailMap"][note_id]["note"]["interactInfo"]["likedCount"]
-                    collect_num = initial_state["note"]["noteDetailMap"][note_id]["note"]["interactInfo"]["collectedCount"]
-                    comment_num = initial_state["note"]["noteDetailMap"][note_id]["note"]["interactInfo"]["commentCount"]
+                    collect_num = initial_state["note"]["noteDetailMap"][note_id]["note"]["interactInfo"][
+                        "collectedCount"]
+                    comment_num = initial_state["note"]["noteDetailMap"][note_id]["note"]["interactInfo"][
+                        "commentCount"]
                     interact_num = int(like_num) + int(collect_num) + int(comment_num)
                     if 0 <= interact_num < 1000:
                         note_level = ""
@@ -770,7 +478,8 @@ def get_note_data(note_ids):
                     else:
                         note_level = "互动量异常"
                     data_ids.append([formatted_date, nicker_name, nicker_level, note_title,
-                                     f"https://www.xiaohongshu.com/explore/{note_id}", note_type, interact_num, like_num,
+                                     f"https://www.xiaohongshu.com/explore/{note_id}", note_type, interact_num,
+                                     like_num,
                                      collect_num, comment_num, note_level, "帖子正常"])
                     print([formatted_date, nicker_name, nicker_level, note_title,
                            f"https://www.xiaohongshu.com/explore/{note_id}", note_type, interact_num, like_num,
