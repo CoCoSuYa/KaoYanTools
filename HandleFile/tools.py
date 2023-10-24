@@ -380,7 +380,7 @@ def send_email_with_attachments(to_email, dir_path):
     print("邮件发送成功")
 
 
-send_email_with_attachments("jiayu.li@shanbay.com", "../datas/")
+#send_email_with_attachments("jiayu.li@shanbay.com", "../datas/")
 
 
 def extract_text(text):

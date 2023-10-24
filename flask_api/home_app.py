@@ -2,7 +2,7 @@ import glob
 import os
 import re
 from multiprocessing import Process
-from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages
+from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages, send_from_directory
 from HandleFile.handleFileData import handle_file_data
 
 app = Flask(__name__, template_folder='../pages', static_folder='../pages/statics')
@@ -128,4 +128,21 @@ def process_data():
     run_in_new_process(handle_file_data, email, datas_dir)
     flash('请求提交成功，请等待几分钟后检查邮箱获取数据！')
     return redirect(url_for('index'))
+
+
+@app.route('/data_list', methods=['GET'])
+def data_list():
+    files = os.listdir(datas_dir)
+    file_list = "<ul>"
+    for file in files:
+        file_list += f"<li><a href='download/{file}'>{file}</a></li>"
+    file_list += "</ul>"
+    return file_list
+
+
+@app.route('/download/<filename>', methods=['GET'])
+def download(filename):
+    return send_from_directory(datas_dir, filename, as_attachment=True)
+
+
 
