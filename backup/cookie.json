@@ -11,15 +11,12 @@
     "x-user-id-creator.xiaohongshu.com": "6131d237000000001f03a57a",
     "xsecappid": "xhs-pc-web",
     "web_session": "040069b4704d235b6aa275d912374b15892aa2",
-    "webBuild": "3.11.3",
-    "unread": "{%22ub%22:%226528ff4b000000001e0288f1%22%2C%22ue%22:%22652902ad000000001d015a23%22%2C%22uc%22:27}",
-    "customerBeakerSessionId": "e869af13a81a269c972a41cb6b32861692ee639dgAJ9cQAoWBAAAABjdXN0b21lclVzZXJUeXBlcQFLAlgOAAAAX2NyZWF0aW9uX3RpbWVxAkdB2UsrbUXjVFgJAAAAYXV0aFRva2VucQNYQQAAADEwODJhNzVjOTA3NjQ0YmFhNWY2YTY5NzE3ODJkOThjLTI4ZjQyNDRhZjgwMDQ1MTE5NDI0N2VkYjkxOWI2OWI2cQRYAwAAAF9pZHEFWCAAAABjM2JjMTU4ZTUxMDQ0ODUyYTM2ZDYwN2ZkNDNmNGQ2OXEGWA4AAABfYWNjZXNzZWRfdGltZXEHR0HZSyttReNUWAYAAAB1c2VySWRxCFgYAAAANjEzMWRlNTgxOTE0NWEwMDAxZmQzZWE3cQlYAwAAAHNpZHEKWBgAAAA2NTJjYWRiNTY0MDAwMDAwMDAwMDAwMDRxC3Uu",
     "customer-sso-sid": "652cadb56400000000000004",
-    "solar.beaker.session.id": "1697426869226054200502",
-    "access-token-pgy.xiaohongshu.com": "customer.ares.AT-faf7840fea414bfa924a600a365c5893-92afe31977934b1f97ebbcfc59365c4a",
-    "access-token-pgy.beta.xiaohongshu.com": "customer.ares.AT-faf7840fea414bfa924a600a365c5893-92afe31977934b1f97ebbcfc59365c4a",
+    "webBuild": "3.12.0",
+    "cacheId": "28b62beb-d5e7-427e-803b-5083ed42d4ec",
+    "unread": "{%22ub%22:%226527bd61000000001e03fcea%22%2C%22ue%22:%22651e66b2000000001e0222ef%22%2C%22uc%22:15}",
     "websectiga": "3fff3a6f9f07284b62c0f2ebf91a3b10193175c06e4f71492b60e056edcdebb2",
-    "sec_poison_id": "5968a585-7496-44fc-b9ab-fd8f798516f6"
+    "sec_poison_id": "de89a1ee-d7c1-42bb-9b7f-b368e1d83891"
 },
   "cookie2": {
     "xhsTrackerId": "8ccb6590-a64e-4964-a02d-0fb4583a31ab",
@@ -34,16 +31,17 @@
     "x-user-id-creator.xiaohongshu.com": "6131d237000000001f03a57a",
     "xsecappid": "xhs-pc-web",
     "web_session": "040069b4704d235b6aa275d912374b15892aa2",
-    "webBuild": "3.11.3",
-    "websectiga": "6169c1e84f393779a5f7de7303038f3b47a78e47be716e7bec57ccce17d45f99",
-    "sec_poison_id": "b134d962-6544-406e-b063-869b21f12279",
+    "webBuild": "3.12.0",
+    "cacheId": "28b62beb-d5e7-427e-803b-5083ed42d4ec",
+    "unread": "{%22ub%22:%226527bd61000000001e03fcea%22%2C%22ue%22:%22651e66b2000000001e0222ef%22%2C%22uc%22:15}",
+    "websectiga": "3fff3a6f9f07284b62c0f2ebf91a3b10193175c06e4f71492b60e056edcdebb2",
+    "sec_poison_id": "de89a1ee-d7c1-42bb-9b7f-b368e1d83891",
     "feratlin-status": "online",
     "feratlin-status.sig": "uBZJqsDDK9NbcHCALtzq7uIWcElHVIDWaGpKRyVXpts",
-    "unread": "{%22ub%22:%226528ff4b000000001e0288f1%22%2C%22ue%22:%22652902ad000000001d015a23%22%2C%22uc%22:27}",
-    "customerBeakerSessionId": "e869af13a81a269c972a41cb6b32861692ee639dgAJ9cQAoWBAAAABjdXN0b21lclVzZXJUeXBlcQFLAlgOAAAAX2NyZWF0aW9uX3RpbWVxAkdB2UsrbUXjVFgJAAAAYXV0aFRva2VucQNYQQAAADEwODJhNzVjOTA3NjQ0YmFhNWY2YTY5NzE3ODJkOThjLTI4ZjQyNDRhZjgwMDQ1MTE5NDI0N2VkYjkxOWI2OWI2cQRYAwAAAF9pZHEFWCAAAABjM2JjMTU4ZTUxMDQ0ODUyYTM2ZDYwN2ZkNDNmNGQ2OXEGWA4AAABfYWNjZXNzZWRfdGltZXEHR0HZSyttReNUWAYAAAB1c2VySWRxCFgYAAAANjEzMWRlNTgxOTE0NWEwMDAxZmQzZWE3cQlYAwAAAHNpZHEKWBgAAAA2NTJjYWRiNTY0MDAwMDAwMDAwMDAwMDRxC3Uu",
-    "customer-sso-sid": "652cadb56400000000000004",
-    "solar.beaker.session.id": "1697426869226054200502",
-    "access-token-pgy.xiaohongshu.com": "customer.ares.AT-faf7840fea414bfa924a600a365c5893-92afe31977934b1f97ebbcfc59365c4a",
-    "access-token-pgy.beta.xiaohongshu.com": "customer.ares.AT-faf7840fea414bfa924a600a365c5893-92afe31977934b1f97ebbcfc59365c4a"
+    "customerBeakerSessionId": "6429bd9d19ec0ea491cabeef289485aba5aa1689gAJ9cQAoWBAAAABjdXN0b21lclVzZXJUeXBlcQFLAlgOAAAAX2NyZWF0aW9uX3RpbWVxAkdB2U2L2Rb521gJAAAAYXV0aFRva2VucQNYQQAAADEwODJhNzVjOTA3NjQ0YmFhNWY2YTY5NzE3ODJkOThjLTI4ZjQyNDRhZjgwMDQ1MTE5NDI0N2VkYjkxOWI2OWI2cQRYAwAAAF9pZHEFWCAAAAAxOTgyNWEzM2VkZWQ0OTY0YWMwN2VjZmQ3NTJkNzY3YXEGWA4AAABfYWNjZXNzZWRfdGltZXEHR0HZTYvZFvnbWAYAAAB1c2VySWRxCFgYAAAANjEzMWRlNTgxOTE0NWEwMDAxZmQzZWE3cQlYAwAAAHNpZHEKWBgAAAA2NTM2MmY2NDY0MDAwMDAwMDAwMDAwMDVxC3Uu",
+    "customer-sso-sid": "65362f646400000000000005",
+    "solar.beaker.session.id": "1698049892516067772803",
+    "access-token-pgy.xiaohongshu.com": "customer.ares.AT-b736b11565664c8bba89080748585de4-9077b3b79f1948d1913de1aa0662547d",
+    "access-token-pgy.beta.xiaohongshu.com": "customer.ares.AT-b736b11565664c8bba89080748585de4-9077b3b79f1948d1913de1aa0662547d"
 }
 }
