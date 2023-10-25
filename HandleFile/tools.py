@@ -293,9 +293,8 @@ def load_json_file():
         print("cookie file path:", path)
         with open(path, 'r') as cookie_file:
             cookie_datas = json.load(cookie_file)
-        global xhs_cookie, pgy_cookie
+        global xhs_cookie
         xhs_cookie = cookie_datas['cookie1']
-        pgy_cookie = cookie_datas['cookie2']
     except Exception as e:
         print(e)
         print("读取cookie文件时出错：cookie文件失效或缺失")
