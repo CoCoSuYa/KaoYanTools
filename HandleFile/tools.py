@@ -20,7 +20,6 @@ data_info_path = os.environ.get('data_info_file_path')
 cookie_info_path = os.environ.get('cookie_info_file_path')
 data_dir = os.environ.get('datas_dir')
 xhs_cookie = ""
-pgy_cookie = ""
 hide, collected, current_fans_num, current_nicker, start_of_week, end_of_week = 0, 0, 0, 0, 0, 0
 headers = {"referer": "https://www.xiaohongshu.com/",
            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
