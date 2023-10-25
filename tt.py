@@ -83,41 +83,43 @@ headers = {"referer": "https://www.xiaohongshu.com/",
                          "Chrome/114.0.0.0 Safari/537.36",
            "Accept": "application/json, text/plain, */*"}
 cookie = cookie_dict
-res = requests.get("https://www.xiaohongshu.com/user/profile/5d08d67000000000160217ed", headers=headers, cookies=cookie)
+res = requests.get("https://www.xiaohongshu.com/explore/653253d800000000250140e3?app_platform=android&app_version=8.8.0&author_share=1&ignoreEngage=true&share_from_user_hidden=true&type=normal&xhsshare=WeixinSession&appuid=5d8c7cb7000000000100244b&apptime=1698107534", headers=headers, cookies=cookie)
 print(res.text)
-note_data = res.text
-initial_state = {}
-
-
-def extract_text(text):
-    pattern = r"(?<=window.__INITIAL_STATE__=).*(?=</script>)"
-    match = re.search(pattern, text, re.DOTALL)
-    if match:
-        result = match.group(0)
-        end = result.find('</script>')  # find the first '</script>'
-        if end != -1:
-            result = result[:end].strip()
-        return result
-    else:
-        return None
-
-
-initial_state_str = extract_text(res.text)
-print(initial_state_str)
-initial_state_str = initial_state_str.replace('undefined', '"undefined"')
-data = json.loads(initial_state_str)
-print(json.loads(initial_state_str))
-nicker_datas = data["user"]["userPageData"]['interactions']
-for nicker_data in nicker_datas:
-    if nicker_data["type"] == "fans":
-        fans_num = nicker_data["count"]
-        if 0 < int(fans_num) < 3000:
-            print("新兴")
-        elif 3000 <= int(fans_num) < 5000:
-            print("普通")
-        elif 5000 <= int(fans_num) < 50000:
-            print("初级")
-        elif 50000 <= fans_num < 500000:
-            print("腰部")
-        elif fans_num >= 500000:
-            print("头部")
+# res = requests.get("https://www.xiaohongshu.com/user/profile/5d08d67000000000160217ed", headers=headers, cookies=cookie)
+# print(res.text)
+# note_data = res.text
+# initial_state = {}
+#
+#
+# def extract_text(text):
+#     pattern = r"(?<=window.__INITIAL_STATE__=).*(?=</script>)"
+#     match = re.search(pattern, text, re.DOTALL)
+#     if match:
+#         result = match.group(0)
+#         end = result.find('</script>')  # find the first '</script>'
+#         if end != -1:
+#             result = result[:end].strip()
+#         return result
+#     else:
+#         return None
+#
+#
+# initial_state_str = extract_text(res.text)
+# print(initial_state_str)
+# initial_state_str = initial_state_str.replace('undefined', '"undefined"')
+# data = json.loads(initial_state_str)
+# print(json.loads(initial_state_str))
+# nicker_datas = data["user"]["userPageData"]['interactions']
+# for nicker_data in nicker_datas:
+#     if nicker_data["type"] == "fans":
+#         fans_num = nicker_data["count"]
+#         if 0 < int(fans_num) < 3000:
+#             print("新兴")
+#         elif 3000 <= int(fans_num) < 5000:
+#             print("普通")
+#         elif 5000 <= int(fans_num) < 50000:
+#             print("初级")
+#         elif 50000 <= fans_num < 500000:
+#             print("腰部")
+#         elif fans_num >= 500000:
+#             print("头部")
