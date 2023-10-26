@@ -501,6 +501,13 @@ def get_note_data(note_ids):
                        "", "", "", "", "", "", "帖子已被隐藏"])
                 print("第", note_ids.index(note_id) + 1, "条数据处理完成")
                 success = True
+            elif res.status_code == 423:
+                data_ids.append(["", "", "", "", f"https://www.xiaohongshu.com/explore/{note_id}",
+                                 "", "", "", "", "", "", "帖子被官方锁定"])
+                print(["", "", "", "", f"https://www.xiaohongshu.com/explore/{note_id}",
+                       "", "", "", "", "", "", "帖子被官方锁定"])
+                print("第", note_ids.index(note_id) + 1, "条数据处理完成")
+                success = True
             else:
                 print("cookie失效,获取cookie后重试")
                 success = True
