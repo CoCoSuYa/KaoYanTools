@@ -1,9 +1,9 @@
 import glob
 import os
-import re
 from multiprocessing import Process
 from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages, send_from_directory
-from HandleFile.handleFileData import handle_file_data
+
+from HandleFile.handleFileData import handle_file_data, handle_file_execute
 
 app = Flask(__name__, template_folder='../pages', static_folder='../pages/statics')
 app.secret_key = 'some_secret'
@@ -117,32 +117,47 @@ def upload_json():
 
 @app.route('/process-data', methods=['POST'])
 def process_data():
-    email = request.form.get('emailInput', '').strip()
-    print("target email:", email)
-
-    # 正则表达式进行email格式验证
-    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-        flash('请提供一个有效的电子邮件地址！')
-        return redirect(url_for('index'))
-
-    run_in_new_process(handle_file_data, email, datas_dir)
-    flash('请求提交成功，请等待几分钟后检查邮箱获取数据！')
+    run_in_new_process(handle_file_data)
+    flash('请求提交成功，请等待几分钟后检查文件列表下载数据！')
     return redirect(url_for('index'))
 
 
 @app.route('/data_list', methods=['GET'])
 def data_list():
-    files = os.listdir(datas_dir)
+    # 获取文件路径列表
+    files = [os.path.join(datas_dir, file) for file in os.listdir(datas_dir)]
+
+    # 根据创建时间排序
+    files.sort(key=os.path.getctime, reverse=True)  # 使用reverse=True来使得新创建的文件在上面
+
+    # 从完整路径中获取文件名
+    filenames = [os.path.basename(file) for file in files]
+
     file_list = "<ul>"
-    for file in files:
+    for file in filenames:
         file_list += f"<li><a href='download/{file}'>{file}</a></li>"
     file_list += "</ul>"
+
     return file_list
+
+
+@app.route('/file_execute', methods=['POST'])
+def file_execute():
+    file = request.files['excel_file']
+    if file.filename == '':
+        flash('未选择文件')
+        return redirect(url_for('index'))
+    if file and allowed_excel(file.filename):
+        filename = file.filename
+        save_path = os.path.join(backup_dir, filename)
+        file.save(save_path)
+        run_in_new_process(handle_file_execute, save_path, filename)
+        flash('数据文件上传成功，马上开始处理，请稍后查看数据列表!')
+    else:
+        flash('上传失败，请确保文件类型为xls或xlsx!')
+    return redirect(url_for('index'))
 
 
 @app.route('/download/<filename>', methods=['GET'])
 def download(filename):
     return send_from_directory(datas_dir, filename, as_attachment=True)
-
-
-

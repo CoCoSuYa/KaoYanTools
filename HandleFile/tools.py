@@ -9,12 +9,6 @@ import requests
 from openpyxl.reader.excel import load_workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.workbook import Workbook
-import smtplib
-from email.header import Header
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email import encoders
 
 data_info_path = os.environ.get('data_info_file_path')
 cookie_info_path = os.environ.get('cookie_info_file_path')
@@ -26,11 +20,6 @@ headers = {"referer": "https://www.xiaohongshu.com/",
 
                          "Chrome/114.0.0.0 Safari/537.36",
            "Accept": "application/json, text/plain, */*"}
-email_server = 'smtp.gmail.com'
-manager_email = 'yuqi.xia@shanbay.com'
-email_pass = 'mnmbeanemjqfffbs'
-email_subject = '数据处理结果'
-email_body = '请下载数据附件，有问题找QA夏宇奇！'
 
 
 def split_into_weeks(data_ids):
@@ -344,41 +333,6 @@ def get_note_ids_from_links(links):
             print("Error:\n", f" 第{links.index(link) + 1}条有问题,问题原因: {str(e)},将跳过该条")
             note_ids.append("None")
     return note_ids
-
-
-def send_email_with_attachments(to_email, dir_path):
-    smtp_server = email_server
-    port = 587
-    sender_email = manager_email
-    sender_password = email_pass
-
-    msg = MIMEMultipart()
-    msg['From'] = sender_email
-    msg['To'] = to_email
-    msg['Subject'] = email_subject
-    msg.attach(MIMEText(email_body, 'plain'))
-
-    # List all files in the directory
-    files = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
-
-    for file in files:
-        file_path = os.path.join(dir_path, file)
-        with open(file_path, 'rb') as f:
-            part = MIMEBase('application', 'octet-stream')
-            part.set_payload(f.read())
-            encoders.encode_base64(part)
-            part.add_header('Content-Disposition', 'attachment',
-                            filename=(Header(os.path.basename(file_path), 'utf-8').encode()))
-            msg.attach(part)
-
-    with smtplib.SMTP(smtp_server, port) as server:
-        server.starttls()
-        server.login(sender_email, sender_password)
-        server.sendmail(sender_email, to_email, msg.as_string())
-    print("邮件发送成功")
-
-
-#send_email_with_attachments("jiayu.li@shanbay.com", "../datas/")
 
 
 def extract_text(text):

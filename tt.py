@@ -85,6 +85,7 @@ headers = {"referer": "https://www.xiaohongshu.com/",
 cookie = cookie_dict
 res = requests.get("https://www.xiaohongshu.com/explore/653253d800000000250140e3?app_platform=android&app_version=8.8.0&author_share=1&ignoreEngage=true&share_from_user_hidden=true&type=normal&xhsshare=WeixinSession&appuid=5d8c7cb7000000000100244b&apptime=1698107534", headers=headers, cookies=cookie)
 print(res.text)
+
 # res = requests.get("https://www.xiaohongshu.com/user/profile/5d08d67000000000160217ed", headers=headers, cookies=cookie)
 # print(res.text)
 # note_data = res.text

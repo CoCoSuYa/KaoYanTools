@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!--suppress HtmlUnknownTarget -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,37 +7,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="statics/css/index_style.css">
     <link rel="stylesheet" href="statics/css/btn_style.css">
-    <script>
-        function uploadFile(inputElementId, formId) {
-            const fileInput = document.getElementById(inputElementId);
-            fileInput.onchange = function() {
-                if (fileInput.files.length > 0) {
-                    document.getElementById(formId).submit();
-                }
-            };
-            // 在文件上传后，重新检查处理文件按钮的状态
-            checkProcessButtonStatus();
-        }
-
-        // 检查处理文件按钮的状态，并相应地显示或隐藏邮箱输入框
-        function checkProcessButtonStatus() {
-            const emailInput = document.getElementById("emailInput");
-            const processButton = document.getElementById("submit");
-            if (processButton.disabled) {
-                emailInput.style.display = "none";
-            } else {
-                emailInput.style.display = "block";
-            }
-        }
-    </script>
-    {% if messages %}
-        <script>
-            alert('{{ messages[0] }}');
-        </script>
-    {% endif %}
+    <link rel="stylesheet" href="statics/css/ui_style.css">
     <title>文件操作</title>
 </head>
-<body onload="checkProcessButtonStatus();">
+<body>
+    <div class="tooltip">
+        <strong>处理时间和数据条数正相关，平均每一条数据需要处理10s</strong>
+        <div class="arrow"></div>
+    </div>
     <div class="container">
         <form id="excelForm" action="/upload-excel" method="post" enctype="multipart/form-data">
             <input type="file" id="excelInput" name="excel_file" accept=".xls, .xlsx" style="display: none;">
@@ -47,9 +25,50 @@
             <button type="button" class="btn btn-left" onclick="document.getElementById('jsonInput').click(); uploadFile('jsonInput', 'jsonForm')">Cookie上传</button>
         </form>
         <form id="emailForm" action="/process-data" method="post">
-            <input type="email" id="emailInput" name="emailInput" placeholder="请输入您的邮箱">
-            <button type="submit" class="btn btn-right" id="submit" {% if not has_excel or not has_json %}disabled{% endif %}>处理文件</button>
+            <button type="submit" class="btn btn-right" id="submit">处理文件</button>
         </form>
+        <form id="dataForm" action="/file_execute" method="post" enctype="multipart/form-data">
+            <input type="file" id="excelExecute" name="excel_file" accept=".xls, .xlsx" style="display: none;">
+            <button type="button" class="btn btn-down" onclick="document.getElementById('excelExecute').click(); uploadFile('excelExecute', 'dataForm')">财务数据上传</button>
+        </form>
+        <a href="{{ url_for('data_list') }}" class="btn">查看文件列表</a>
     </div>
+    <script>
+        function uploadFile(inputElementId, formId) {
+            const fileInput = document.getElementById(inputElementId);
+            fileInput.onchange = function() {
+                if (fileInput.files.length > 0) {
+                    document.getElementById(formId).submit();
+                }
+            };
+        }
+        document.getElementById('submit').addEventListener('mouseover', function(event) {
+            // 获取鼠标的位置
+            let mouseX = event.clientX;
+            let mouseY = event.clientY;
+
+            // 获取冒泡框元素
+            let tooltip = document.querySelector('.tooltip');
+
+            // 设置冒泡框的位置
+            tooltip.style.top = mouseY + 'px';
+            tooltip.style.left = mouseX + 'px';
+
+            // 显示冒泡框
+            tooltip.style.display = 'block';
+        });
+        document.getElementById('submit').addEventListener('mouseout', function() {
+            // 获取冒泡框元素
+            let tooltip = document.querySelector('.tooltip');
+            // 隐藏冒泡框
+            tooltip.style.display = 'none';
+        });
+
+    </script>
+    {% if messages %}
+        <script>
+            alert('{{ messages[0] }}');
+        </script>
+    {% endif %}
 </body>
 </html>

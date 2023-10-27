@@ -18,7 +18,11 @@ body{
     perspective: 320px;
 }
 .btn{
-    display: block;
+    /* 其他属性不变 */
+    display: flex;
+    align-items: center;  /* 垂直居中 */
+    justify-content: center; /* 水平居中 */
+    text-align: center;
     margin: 40px 0;
     width: 200px;
     height: 40px;
@@ -31,64 +35,31 @@ body{
     cursor: pointer;
     /* 动画过渡 */
     transition: 0.3s;
+    text-decoration: none;
 }
+/* 其他hover效果不变 */
+
 .btn-up:hover {
     transform: rotateX(30deg);
+    text-align: center;
     box-shadow: 0 -15px 15px rgba(225,95,65,0.56);
 }
 
 .btn-down:hover {
     transform: rotateX(-30deg);
+    text-align: center;
     box-shadow: 0 15px 15px rgba(225,95,65,0.56);
 }
 
 .btn-left:hover {
     transform: rotateY(30deg);
+    text-align: center;
     box-shadow: 15px 0 15px rgba(225,95,65,0.56);
 }
 
 .btn-right:hover {
     transform: rotateY(-30deg);
+    text-align: center;
     box-shadow: -15px 0 15px rgba(225,95,65,0.56);
 }
 
-#emailInput {
-    display: block;
-    margin: 20px 0; /* 与按钮的间距相似 */
-    width: 200px;
-    height: 40px; /* 高度较小，因为它是输入框而非按钮 */
-    border: none;
-    background-color: #fda085;
-    color: #fff;
-    font-size: 18px;
-    border-radius: 6px;
-    outline: none;
-    transition: 0.3s;
-    text-align: center;
-}
-
-/* 悬停效果 */
-#emailInput:hover {
-    /* 选择X轴的旋转作为示例，但你可以根据需要选择其他方向 */
-    transform: rotateX(-30deg);
-    box-shadow: 0 -15px 15px rgba(225,95,65,0.56); /* 调整为适合输入框的阴影大小 */
-}
-
-/* 当输入框获得焦点时的风格 */
-#emailInput:focus {
-    border-color: #fcb69f;
-    box-shadow: 0 0 5px #fcb69f; /* 为焦点提供轻微的高亮效果 */
-}
-
-#emailInput::placeholder {
-    text-align: center;
-}
-
-/* 修改自动填充的文本颜色和背景颜色 */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active  {
-    -webkit-box-shadow: 0 0 0 50px #fda085 inset !important; /* 设置您想要的背景颜色 */
-    color: #fff !important; /* 设置文本颜色 */
-}

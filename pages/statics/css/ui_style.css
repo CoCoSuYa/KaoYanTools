@@ -1,0 +1,20 @@
+.tooltip {
+    position: absolute;
+    background-color: #fda085;
+    padding: 10px 20px;
+    border-radius: 6px;
+     width: 180px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    display: none;  /* 默认不显示 */
+    z-index: 1000;  /* 保证在顶部 */
+}
+
+.arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 8px 10px 8px 0;
+    border-color: transparent #fda085 transparent transparent;
+    transform: translateY(-50%);
+}
