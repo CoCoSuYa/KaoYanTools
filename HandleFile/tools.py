@@ -383,6 +383,7 @@ def get_note_data(note_ids):
     data_ids = []
     for note_id in note_ids:
         success = False
+        retry_count = 0
         while not success:
             print("开始处理第", note_ids.index(note_id) + 1, "条数据")
             if note_id == "None":
@@ -441,6 +442,19 @@ def get_note_data(note_ids):
                 except Exception as e:
                     print(e)
                     print("第", note_ids.index(note_id) + 1, "条数据处理失败,将重试")
+                    if retry_count >= 5:
+                        print("重试次数已达上限,跳过该条数据")
+                        data_ids.append(["", "", "", "", f"https://www.xiaohongshu.com/explore/{note_id}",
+                                         "", "", "", "", "", "", "帖子已跳过"])
+                        print(["", "", "", "", f"https://www.xiaohongshu.com/explore/{note_id}",
+                               "", "", "", "", "", "", "帖子已跳过"])
+                        print("第", note_ids.index(note_id) + 1, "条数据处理完成")
+                        retry_count = 0
+                        success = True
+                    else:
+                        time.sleep(random.randint(1, 4))
+                        retry_count += 1
+                        print("重试次数:", retry_count)
             elif res.status_code == 404:
                 data_ids.append(["", "", "", "", f"https://www.xiaohongshu.com/explore/{note_id}",
                                  "", "", "", "", "", "", "帖子已被删除"])
