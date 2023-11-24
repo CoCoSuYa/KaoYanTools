@@ -1,6 +1,6 @@
 from HandleFile.financialDataProcess import load_file, write_file
 from HandleFile.tools import load_excel_file, load_json_file, get_note_ids_from_links, write_data_excel_file, \
-    split_into_weeks, write_date_excel_file, get_note_data
+    split_into_weeks, write_date_excel_file, get_note_data, send_msg_to_DingTalk
 
 
 def handle_file_data():
@@ -23,6 +23,7 @@ def handle_file_data():
     weeks = split_into_weeks(nick_data_ids)
     print(weeks)
     write_date_excel_file(weeks)
+    send_msg_to_DingTalk("数据处理完成！请相关人员去指定页面查看！")
 
 
 def handle_file_nicker():

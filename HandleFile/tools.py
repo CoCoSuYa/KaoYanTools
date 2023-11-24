@@ -22,6 +22,30 @@ headers = {"referer": "https://www.xiaohongshu.com/",
            "Accept": "application/json, text/plain, */*"}
 
 
+def send_msg_to_DingTalk(msg, mobile="123", ids="123", isAll="false"):
+    url = "https://oapi.dingtalk.com/robot/send?access_token=" \
+          "b853b22ba39604a45dc32a61bc86ca80a86b12d0010cbad5150f57fc362323e1"
+    data = {
+        "at": {
+            "atMobiles": [
+                mobile  # DingTalk用户手机号 暂时不填
+            ],
+            "atUserIds": [
+                ids  # DingTalk用户id 暂时不填
+            ],
+            "isAtAll": isAll  # 是否@所有人 暂时不填
+        },
+        "text": {
+            "content": "通知：" + msg  # 消息内容，必须带“通知”两个字
+        },
+        "msgtype": "text"  # 消息类型，此时固定为text
+    }
+
+    res = requests.post(url, json=data)
+    print(res.status_code)
+    print(res.text)
+
+
 def split_into_weeks(data_ids):
     """
         将数据按周分组
@@ -316,6 +340,18 @@ def get_note_ids_from_links(links):
             if link == "":
                 note_ids.append("None")
                 print("第", links.index(link) + 1, "条帖子id:", "None")
+            elif "xiaohongshu" in link:
+                if "item" in link:
+                    note_id = re.findall(r'item/(\w+)', link)[0]
+                elif "website-login" in link:
+                    if "item" in link:
+                        note_id = re.findall(r'item%2F(\w+)', link)[0]
+                    else:
+                        note_id = re.findall(r'explore%2F(\w+)', link)[0]
+                else:
+                    note_id = re.findall(r'explore/(\w+)', link)[0]
+                note_ids.append(note_id)
+                print("第", links.index(link) + 1, "条帖子id:", note_id)
             else:
                 url = get_redirected_url(link)
                 if "item" in url:
@@ -381,14 +417,20 @@ def get_nicker_level_by_user_id(user_id):
 
 def get_note_data(note_ids):
     data_ids = []
+    error_count = 0
     for note_id in note_ids:
         success = False
         retry_count = 0
+        if error_count > 2:
+            msg = "错误次数过多，程序终止"
+            send_msg_to_DingTalk(msg)
+            raise Exception(msg)
         while not success:
             print("开始处理第", note_ids.index(note_id) + 1, "条数据")
             if note_id == "None":
                 data_ids.append("None")
-                print("链接", note_ids.index(note_id) + 1, "有问题,置为None")
+                msg = "第" + str(note_ids.index(note_id) + 1) + "条链接有问题,置为None"
+                print(msg)
                 success = True
                 continue
             res = requests.get(f"https://www.xiaohongshu.com/explore/{note_id}", headers=headers, cookies=xhs_cookie)
@@ -444,6 +486,9 @@ def get_note_data(note_ids):
                     print("第", note_ids.index(note_id) + 1, "条数据处理失败,将重试")
                     if retry_count >= 5:
                         print("重试次数已达上限,跳过该条数据")
+                        msg = "第" + str(note_ids.index(note_id) + 1) + "条链接重试次数已达上限,跳过该条数据"
+                        send_msg_to_DingTalk(msg)
+                        error_count += 1
                         data_ids.append(["", "", "", "", f"https://www.xiaohongshu.com/explore/{note_id}",
                                          "", "", "", "", "", "", "帖子已跳过"])
                         print(["", "", "", "", f"https://www.xiaohongshu.com/explore/{note_id}",
@@ -461,6 +506,9 @@ def get_note_data(note_ids):
                 print(["", "", "", "", f"https://www.xiaohongshu.com/explore/{note_id}",
                        "", "", "", "", "", "", "帖子已被删除"])
                 print("第", note_ids.index(note_id) + 1, "条数据处理完成")
+                msg = "第" + str(note_ids.index(note_id) + 1) + "条链接的帖子已被删除"
+                send_msg_to_DingTalk(msg)
+                error_count += 1
                 success = True
             elif res.status_code == 403:
                 data_ids.append(["", "", "", "", f"https://www.xiaohongshu.com/explore/{note_id}",
@@ -468,6 +516,9 @@ def get_note_data(note_ids):
                 print(["", "", "", "", f"https://www.xiaohongshu.com/explore/{note_id}",
                        "", "", "", "", "", "", "帖子已被隐藏"])
                 print("第", note_ids.index(note_id) + 1, "条数据处理完成")
+                msg = "第" + str(note_ids.index(note_id) + 1) + "条链接的帖子已被隐藏"
+                send_msg_to_DingTalk(msg)
+                error_count += 1
                 success = True
             elif res.status_code == 423:
                 data_ids.append(["", "", "", "", f"https://www.xiaohongshu.com/explore/{note_id}",
@@ -475,9 +526,15 @@ def get_note_data(note_ids):
                 print(["", "", "", "", f"https://www.xiaohongshu.com/explore/{note_id}",
                        "", "", "", "", "", "", "帖子被官方锁定"])
                 print("第", note_ids.index(note_id) + 1, "条数据处理完成")
+                msg = "第" + str(note_ids.index(note_id) + 1) + "条链接的帖子被官方锁定"
+                send_msg_to_DingTalk(msg)
+                error_count += 1
                 success = True
             else:
                 print("cookie失效,获取cookie后重试")
+                msg = "cookie失效,请更新cookie后重新提交"
+                send_msg_to_DingTalk(msg)
+                error_count += 1
                 success = True
 
     return data_ids

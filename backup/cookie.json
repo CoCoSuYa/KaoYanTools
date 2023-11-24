@@ -1,23 +1,22 @@
 {
-  "cookie1":{
-    "xhsTrackerId": "8ccb6590-a64e-4964-a02d-0fb4583a31ab",
-    "xhsTrackerId.sig": "M4ymAnQxi3ng1zylgA9LGv-MTEOZHlR5WvERRQeVT7Y",
-    "a1": "1878ec72b9f34xctibh4293i0ldcu98o6p98f8hlz50000155385",
-    "webId": "eb8478acc157b0fd9a5276ca49d7d6cd",
-    "gid": "yYWYdSWJiDK2yYWYdSWJDUYxjiq4CS93Dx4Jj1ujq381fY28S7jYli888y22qY288SqYD4df",
-    "customerClientId": "367375640977445",
+  "cookie1": {
+    "gid.ss": "gSMQ9UOnDuZwH2oRGJG6BW6e4grs67TaYpnrW+8Wmd3xDNSufFX4yTPJO3m42j5z",
+    "smidV2": "20221122162401d65f9672e9d46570ec73549ff6051a8500ff3823125174770",
+    "timestamp2": "1672736581062209740b2b9a82bbfdd1c54dbc532abdd25f338c35a1d8e666d",
+    "timestamp2.sig": "SfYDdnB51yTGUrFv5uwyzbksAQAgNGfwtwSPQI55y3w",
+    "a1": "1860c58f1305kqrhgx04uw4p5dgye2yh4yuidv8du30000405407",
+    "webId": "60296b8404cfb56977ec0bbc772622cc",
+    "gid": "yYKWW882q84qyYK8S2YiyvhYq82TAFxkC8477f7E4U2fk3q8vdJvxf88848248W8jW8D220i",
+    "customerClientId": "452108658228118",
+    "abRequestId": "60296b8404cfb56977ec0bbc772622cc",
     "x-user-id-pgy.xiaohongshu.com": "6131d237000000001f03a57a",
-    "abRequestId": "eb8478acc157b0fd9a5276ca49d7d6cd",
-    "b-user-id": "7b4e1ae6-3ff1-bf6a-3d20-83b84f0f3bc1",
-    "x-user-id-creator.xiaohongshu.com": "6131d237000000001f03a57a",
-    "customer-sso-sid": "65362f646400000000000005",
-    "xsecappid": "xhs-pc-web",
-    "webBuild": "3.16.5",
-    "cacheId": "7e8c6c89-400b-48ba-ac64-cf5724f71640",
+    "customer-sso-sid": "64ffd0df7500000000000004",
     "cache_feeds": "[]",
-    "web_session": "040069b5f6de7613aab1dad168374b0046b77f",
-    "unread": "{%22ub%22:%226541f752000000001e0304f3%22%2C%22ue%22:%22655c3527000000003103ce80%22%2C%22uc%22:16}",
-    "websectiga": "9730ffafd96f2d09dc024760e253af6ab1feb0002827740b95a255ddf6847fc8",
-    "sec_poison_id": "56e8f6f3-ebd2-4a02-b863-254f48e0ca38"
+    "xsecappid": "xhs-pc-web",
+    "unread": "{%22ub%22:%22653e4c56000000002201f829%22%2C%22ue%22:%226553647f0000000032008ecb%22%2C%22uc%22:26}",
+    "webBuild": "3.16.5",
+    "websectiga": "10f9a40ba454a07755a08f27ef8194c53637eba4551cf9751c009d9afb564467",
+    "sec_poison_id": "38e94d71-c041-45fc-b7d2-917163725129",
+    "web_session": "040069b5f6de7613aab12a866b374b780279c7"
 }
 }
