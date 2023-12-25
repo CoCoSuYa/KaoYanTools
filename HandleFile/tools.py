@@ -424,7 +424,7 @@ def get_note_data(note_ids):
     for note_id in note_ids:
         success = False
         retry_count = 0
-        if error_count > 2:
+        if error_count > 9:
             msg = "错误次数过多，程序终止"
             send_msg_to_DingTalk(msg)
             raise Exception(msg)
