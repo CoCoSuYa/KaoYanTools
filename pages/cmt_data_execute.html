@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据执行</title>
+    <link rel="stylesheet" href="statics/css/index_style.css">
+    <link rel="stylesheet" href="statics/css/btn_style.css">
+    <link rel="stylesheet" href="statics/css/ui_style.css">
+</head>
+<body>
+    <form id="csvForm" action="/upload-csv" method="post" enctype="multipart/form-data">
+        <input type="file" id="csvInput" name="csv_file" accept=".csv" style="display: none;">
+        <button type="button" class="btn btn-left" onclick="document.getElementById('csvInput').click(); uploadFile('csvInput', 'csvForm')">处理数据</button>
+    </form>
+    <a href="{{ url_for('cmt_data_execute.data_list_cmt') }}" class="btn btn-down">数据列表</a>
+
+    <script>
+        function uploadFile(inputElementId, formId) {
+            const fileInput = document.getElementById(inputElementId);
+            fileInput.onchange = function() {
+                if (fileInput.files.length > 0) {
+                    document.getElementById(formId).submit();
+                }
+            };
+        }
+    </script>
+    {% if messages %}
+        <script>
+            alert('{{ messages[0] }}');
+        </script>
+    {% endif %}
+</body>
+</html>

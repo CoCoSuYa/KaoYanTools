@@ -1,18 +1,21 @@
 import json
-import os
 import random
 import re
 import time
 from datetime import datetime, timedelta
 import chardet
 import requests
+import os
 from openpyxl.reader.excel import load_workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.workbook import Workbook
 
-data_info_path = os.environ.get('data_info_file_path')
-cookie_info_path = os.environ.get('cookie_info_file_path')
-data_dir = os.environ.get('datas_dir')
+file_path_url = os.getcwd() + "/backup/file_path.json"
+with open(file_path_url) as file_path_json:
+    file_path = json.load(file_path_json)
+data_dir = file_path["datas_dir"]
+cookie_info_path = file_path["cookie_info_file_path"]
+data_file_path = file_path["data_info_file_path"]
 xhs_cookie = ""
 hide, collected, current_fans_num, current_nicker, start_of_week, end_of_week = 0, 0, 0, 0, 0, 0
 headers = {"referer": "https://www.xiaohongshu.com/",
@@ -132,13 +135,13 @@ def write_data_excel_file(data_ids):
                 print("Error:\n", "设置数据表列宽时发生错误:", str(e))
         adjusted_width = (max_length + 2)
         ws.column_dimensions[get_column_letter(col_num)].width = adjusted_width
-    with open(data_info_path, 'rb') as f:
+    with open(data_file_path, 'rb') as f:
         rawdata = f.read()
         result = chardet.detect(rawdata)
         char_en = result['encoding']
     # 得到原文件名（不含扩展名）
-    with open(data_info_path, "r", encoding=char_en) as file_path:
-        file_url = file_path.read()
+    with open(data_file_path, "r", encoding=char_en) as path:
+        file_url = path.read()
     filename_without_ext = os.path.splitext(os.path.basename(file_url))[0]
     # 构造新文件名（可以自行修改格式）
     new_filename = filename_without_ext + "_数据整理.xlsx"
@@ -202,13 +205,13 @@ def write_date_excel_file(data_ids):
                     print("Error:\n", "设置排期表列宽时发生错误:", str(e))
             adjusted_width = (max_length + 2)
             ws.column_dimensions[get_column_letter(col_num)].width = adjusted_width
-        with open(data_info_path, 'rb') as f:
+        with open(data_file_path, 'rb') as f:
             rawdata = f.read()
             result = chardet.detect(rawdata)
             char_en = result['encoding']
         # 得到原文件名（不含扩展名）
-        with open(data_info_path, "r", encoding=char_en) as file_path:
-            file_url = file_path.read()
+        with open(data_file_path, "r", encoding=char_en) as path:
+            file_url = path.read()
         filename_without_ext = os.path.splitext(os.path.basename(file_url))[0]
         # 构造新文件名（可以自行修改格式）
         new_filename = filename_without_ext + f'_排期表{start_of_week}~{end_of_week}.xlsx'
@@ -252,13 +255,13 @@ def write_up_fans_excel_file(data_ids):
 
         adjusted_width = (max_length + 2)
         ws.column_dimensions[get_column_letter(col_num)].width = adjusted_width
-    with open(data_info_path, 'rb') as f:
+    with open(data_file_path, 'rb') as f:
         rawdata = f.read()
         result = chardet.detect(rawdata)
         char_en = result['encoding']
     # # 得到文件名（不含扩展名）
-    with open(data_info_path, "r", encoding=char_en) as file_path:
-        file_url = file_path.read()
+    with open(data_file_path, "r", encoding=char_en) as path:
+        file_url = path.read()
     filename_without_ext = os.path.splitext(os.path.basename(file_url))[0]
     # 构造新文件名（可以自行修改格式）
     new_filename = filename_without_ext + "_粉丝收集.xlsx"
@@ -277,7 +280,7 @@ def load_excel_file():
     :return: 读取到的超链接列表
     """
     links = []
-    with open(data_info_path, 'r') as data_path:
+    with open(data_file_path, 'r') as data_path:
         path = data_path.read().strip()
     print("excel file path:", path)
     try:

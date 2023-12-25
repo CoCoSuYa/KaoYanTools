@@ -1,3 +1,4 @@
+from HandleFile.cmt_analysis import cmt_data_analysis
 from HandleFile.financialDataProcess import load_file, write_file
 from HandleFile.tools import load_excel_file, load_json_file, get_note_ids_from_links, write_data_excel_file, \
     split_into_weeks, write_date_excel_file, get_note_data, send_msg_to_DingTalk
@@ -36,3 +37,8 @@ def handle_file_execute(file_url, file_name):
     write_file(data, file_name)
     print("文件处理完成！")
 
+
+def handle_file_picture(file_url):
+    print("开始处理文件！")
+    cmt_data_analysis(file_url)
+    print("文件处理完成！")

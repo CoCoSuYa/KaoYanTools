@@ -1,27 +1,29 @@
 import glob
+import json
 import os
-from multiprocessing import Process
-from flask import Flask, render_template, request, redirect, url_for, flash, get_flashed_messages, send_from_directory
-
-from HandleFile.handleFileData import handle_file_data, handle_file_execute
+from flask import Flask, render_template, request, redirect, flash, get_flashed_messages
+from flask_api.cmt_data_execute import cmt_data_execute_blueprint
+from flask_api.pac_data_execute import pac_data_execute_blueprint
 
 app = Flask(__name__, template_folder='../pages', static_folder='../pages/statics')
+app.register_blueprint(cmt_data_execute_blueprint)
+app.register_blueprint(pac_data_execute_blueprint)
 app.secret_key = 'some_secret'
-base_dir = os.path.dirname(os.path.abspath(__file__))
-backup_dir = os.path.join(base_dir, '../backup')
-datas_dir = os.path.join(base_dir, '../datas')
-data_info_file_path = os.path.join(backup_dir, 'data_info')
-cookie_info_file_path = os.path.join(backup_dir, 'cookie_info')
-os.environ["backup_dir"] = backup_dir
-os.environ["datas_dir"] = datas_dir
-os.environ["data_info_file_path"] = data_info_file_path
-os.environ["cookie_info_file_path"] = cookie_info_file_path
 
-
-def run_in_new_process(func, *args):
-    p = Process(target=func, args=args)
-    p.start()
-    return p
+file_path_url = os.getcwd() + "/backup/file_path.json"
+backup_dir = os.getcwd() + "/backup"
+datas_dir = os.getcwd() + "/datas"
+data_info_file_path = os.getcwd() + "/backup/data_info"
+cookie_info_file_path = os.getcwd() + "/backup/cookie_info"
+data = {
+    "data_info_file_path": data_info_file_path,
+    "cookie_info_file_path": cookie_info_file_path,
+    "backup_dir": backup_dir,
+    "datas_dir": datas_dir
+}
+# 写入 JSON 数据到文件
+with open(file_path_url, 'w') as json_file:
+    json.dump(data, json_file, indent=4)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -71,93 +73,3 @@ def allowed_excel(filename):
 
 def allowed_json(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ['json']
-
-
-@app.route('/upload-excel', methods=['POST'])
-def upload_excel():
-    excel_file = request.files['excel_file']
-    if excel_file.filename == '':
-        flash('未选择文件')
-        return redirect(url_for('index'))
-    if excel_file and allowed_excel(excel_file.filename):
-        filename = excel_file.filename
-        save_path = os.path.join(backup_dir, filename)
-        excel_file.save(save_path)
-
-        # 保存数据文件路径信息
-        with open(data_info_file_path, 'w') as data_info_file:
-            data_info_file.write(save_path)
-
-        flash('数据文件上传成功!')
-    else:
-        flash('上传失败，请确保文件类型为xls或xlsx!')
-    return redirect(url_for('index'))
-
-
-@app.route('/upload-json', methods=['POST'])
-def upload_json():
-    json_file = request.files['json_file']
-    if json_file.filename == '':
-        flash('未选择文件')
-        return redirect(url_for('index'))
-    if json_file and allowed_json(json_file.filename):
-        filename = json_file.filename
-        save_path = os.path.join(backup_dir, filename)
-        json_file.save(save_path)
-
-        # 保存Cookie文件路径信息
-        with open(cookie_info_file_path, 'w') as cookie_info_file:
-            cookie_info_file.write(save_path)
-
-        flash('Cookie文件上传成功!')
-    else:
-        flash('上传失败，请确保文件类型为json!')
-    return redirect(url_for('index'))
-
-
-@app.route('/process-data', methods=['POST'])
-def process_data():
-    run_in_new_process(handle_file_data)
-    flash('请求提交成功，请等待几分钟后检查文件列表下载数据！')
-    return redirect(url_for('index'))
-
-
-@app.route('/data_list', methods=['GET'])
-def data_list():
-    # 获取文件路径列表
-    files = [os.path.join(datas_dir, file) for file in os.listdir(datas_dir)]
-
-    # 根据创建时间排序
-    files.sort(key=os.path.getctime, reverse=True)  # 使用reverse=True来使得新创建的文件在上面
-
-    # 从完整路径中获取文件名
-    filenames = [os.path.basename(file) for file in files]
-
-    file_list = "<ul>"
-    for file in filenames:
-        file_list += f"<li><a href='download/{file}'>{file}</a></li>"
-    file_list += "</ul>"
-
-    return file_list
-
-
-@app.route('/file_execute', methods=['POST'])
-def file_execute():
-    file = request.files['excel_file']
-    if file.filename == '':
-        flash('未选择文件')
-        return redirect(url_for('index'))
-    if file and allowed_excel(file.filename):
-        filename = file.filename
-        save_path = os.path.join(backup_dir, filename)
-        file.save(save_path)
-        run_in_new_process(handle_file_execute, save_path, filename)
-        flash('数据文件上传成功，马上开始处理，请稍后查看数据列表!')
-    else:
-        flash('上传失败，请确保文件类型为xls或xlsx!')
-    return redirect(url_for('index'))
-
-
-@app.route('/download/<filename>', methods=['GET'])
-def download(filename):
-    return send_from_directory(datas_dir, filename, as_attachment=True)

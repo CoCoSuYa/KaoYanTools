@@ -1,9 +1,13 @@
+import json
 import os
 from openpyxl import load_workbook, Workbook
 from datetime import datetime
 from openpyxl.styles import Alignment
 
-data_dir = os.environ.get('datas_dir')
+file_path_url = os.getcwd() + "/backup/file_path.json"
+with open(file_path_url) as file_path_json:
+    file_path = json.load(file_path_json)
+data_dir = file_path['datas_dir']
 
 
 def set_column_widths(sheet):

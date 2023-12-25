@@ -31,7 +31,7 @@
             <input type="file" id="excelExecute" name="excel_file" accept=".xls, .xlsx" style="display: none;">
             <button type="button" class="btn btn-down" onclick="document.getElementById('excelExecute').click(); uploadFile('excelExecute', 'dataForm')">财务数据上传</button>
         </form>
-        <a href="{{ url_for('data_list') }}" class="btn">查看文件列表</a>
+        <a href="{{ url_for('pac_data_execute.data_list') }}" class="btn">查看文件列表</a>
     </div>
     <script>
         function uploadFile(inputElementId, formId) {
