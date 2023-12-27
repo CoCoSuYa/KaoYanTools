@@ -3,6 +3,7 @@ import os
 from openpyxl import load_workbook, Workbook
 from datetime import datetime
 from openpyxl.styles import Alignment
+from collections import defaultdict
 
 file_path_url = os.getcwd() + "/backup/file_path.json"
 with open(file_path_url) as file_path_json:
@@ -67,10 +68,48 @@ def load_file(file_url):
     sorted_data_list = sorted(
         [row for row in data_list if row[new_headers.index("昵称")] and row[new_headers.index("昵称")] != ""],
         key=lambda x: x[new_headers.index("昵称")])
-
+    print([new_headers] + sorted_data_list)
     return [new_headers] + sorted_data_list
 
 
+def create_summary_sheet(data, workbook):
+    # 创建新的工作表
+    sheet = workbook.create_sheet("Summary")
+
+    # 定义表头
+    headers = ["序号", "收款方支付宝账号", "收款方姓名", "金额", "备注"]
+
+    # 用字典记录每个支付宝账号对应的总金额
+    account_info_dict = defaultdict(lambda: {'金额': 0, '支付宝收款人': '', '备注': '扇贝考研小红书合作'})
+
+    for row in data[1:]:  # 跳过表头
+        try:
+            amount = float(row[5])  # 尝试将金额转换为浮点数
+            account_info_dict[row[4]]['金额'] += amount  # 如果转换成功，进行累加
+            account_info_dict[row[4]]['支付宝收款人'] = row[3]  # 记录收款方姓名
+        except ValueError:
+            pass  # 如果转换失败，忽略该行数据
+
+    # 将字典转换为列表，并按照序号顺序排序
+    account_info_list = list(account_info_dict.items())
+
+    # 写入表头
+    for j, header in enumerate(headers):
+        sheet.cell(row=1, column=j + 1).value = header
+
+    # 写入数据
+    for i, info in enumerate(account_info_list, start=2):
+        sheet.cell(row=i, column=1).value = i - 1  # 序号
+        sheet.cell(row=i, column=2).value = info[0]  # 收款方支付宝账号
+        sheet.cell(row=i, column=3).value = info[1]['支付宝收款人']  # 收款方姓名
+        sheet.cell(row=i, column=4).value = info[1]['金额']  # 金额
+        sheet.cell(row=i, column=5).value = info[1]['备注']  # 备注
+
+    set_column_widths(sheet)
+    set_cells_center_aligned(sheet)
+
+
+# 修改 write_file 函数，以在写入数据后调用 create_summary_sheet 函数
 def write_file(data, file_name):
     workbook = Workbook()
     sheet = workbook.active
@@ -86,6 +125,10 @@ def write_file(data, file_name):
 
     set_column_widths(sheet)
     set_cells_center_aligned(sheet)
+
+    # 在保存之前创建Summary工作表
+    create_summary_sheet(data, workbook)
+
     new_file_name = file_name.split(".")[0] + "_已处理.xlsx"
     output_path = os.path.join(data_dir, new_file_name)
     workbook.save(output_path)
