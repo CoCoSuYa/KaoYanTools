@@ -1,9 +1,6 @@
 {
   "cookie1": {
-    "gid.ss": "gSMQ9UOnDuZwH2oRGJG6BW6e4grs67TaYpnrW+8Wmd3xDNSufFX4yTPJO3m42j5z",
     "smidV2": "20221122162401d65f9672e9d46570ec73549ff6051a8500ff3823125174770",
-    "timestamp2": "1672736581062209740b2b9a82bbfdd1c54dbc532abdd25f338c35a1d8e666d",
-    "timestamp2.sig": "SfYDdnB51yTGUrFv5uwyzbksAQAgNGfwtwSPQI55y3w",
     "a1": "1860c58f1305kqrhgx04uw4p5dgye2yh4yuidv8du30000405407",
     "webId": "60296b8404cfb56977ec0bbc772622cc",
     "gid": "yYKWW882q84qyYK8S2YiyvhYq82TAFxkC8477f7E4U2fk3q8vdJvxf88848248W8jW8D220i",
@@ -13,10 +10,10 @@
     "customer-sso-sid": "64ffd0df7500000000000004",
     "cache_feeds": "[]",
     "xsecappid": "xhs-pc-web",
-    "web_session": "040069b5f6de7613aab12a866b374b780279c7",
-    "unread": "{%22ub%22:%2265828f20000000000703a3d7%22%2C%22ue%22:%22655a075a0000000033003250%22%2C%22uc%22:29}",
-    "webBuild": "3.21.2",
-    "websectiga": "2845367ec3848418062e761c09db7caf0e8b79d132ccdd1a4f8e64a11d0cac0d",
-    "sec_poison_id": "6b02fddf-bf7a-42c4-bb23-72f933591e33"
+    "web_session": "040069b5f6de7613aab19658ab374b6d6c2973",
+    "unread": "{%22ub%22:%2265781a45000000003803686c%22%2C%22ue%22:%2265902660000000001a003399%22%2C%22uc%22:21}",
+    "webBuild": "3.24.1",
+    "websectiga": "a9bdcaed0af874f3a1431e94fbea410e8f738542fbb02df1e8e30c29ef3d91ac",
+    "sec_poison_id": "7c8215eb-bcac-442b-a7e2-2f63c31f3827"
 }
 }
