@@ -10,10 +10,10 @@
     "customer-sso-sid": "64ffd0df7500000000000004",
     "cache_feeds": "[]",
     "xsecappid": "xhs-pc-web",
-    "web_session": "040069b5f6de7613aab19658ab374b6d6c2973",
-    "unread": "{%22ub%22:%2265781a45000000003803686c%22%2C%22ue%22:%2265902660000000001a003399%22%2C%22uc%22:21}",
-    "webBuild": "3.24.1",
-    "websectiga": "a9bdcaed0af874f3a1431e94fbea410e8f738542fbb02df1e8e30c29ef3d91ac",
-    "sec_poison_id": "7c8215eb-bcac-442b-a7e2-2f63c31f3827"
+    "webBuild": "4.0.6",
+    "websectiga": "82e85efc5500b609ac1166aaf086ff8aa4261153a448ef0be5b17417e4512f28",
+    "sec_poison_id": "46c57e99-39d2-4cc7-a817-b3da441f4859",
+    "web_session": "040069b5f6de7613aab1dc9198374b2c875731",
+    "unread": "{%22ub%22:%2265adc911000000002d03964f%22%2C%22ue%22:%2265912e7a000000001e00bcdf%22%2C%22uc%22:29}"
 }
 }

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>AI聊天机器人</title>
+</head>
+<body>
+   <h1>AI聊天机器人</h1>
+   <form method="POST">
+       {{ form.csrf_token }}
+       {{ form.message.label }} {{ form.message }}
+       {{ form.submit }}
+   </form>
+   <hr>
+   {% if response %}
+       <p>机器人回答：{{ response }}</p>
+   {% endif %}
+</body>
+</html>

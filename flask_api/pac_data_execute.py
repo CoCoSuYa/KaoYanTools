@@ -1,8 +1,9 @@
 import json
-import json
 import os
 from multiprocessing import Process
+
 from flask import request, redirect, url_for, flash, send_from_directory, Blueprint
+
 from HandleFile.handleFileData import handle_file_data, handle_file_execute
 
 pac_data_execute_blueprint = Blueprint('pac_data_execute', __name__)
