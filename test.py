@@ -1,32 +1,37 @@
-import requests as requests
+import os
+import pickle
 
-# 在这里配置您在本站的API_KEY
-api_key = "your API_KEY"
+from HandleFile.AiType import TestAI
 
-headers = {
-    "Authorization": 'Bearer ' + 'sk-c2W2DFWC7B5D19247e19T3BLBkFJcFcb14b504E842299535',
-}
 
-question = input("输入您的问题\n")
+def serialize(instance, filename):
+    with open(filename, 'wb') as file:
+        pickle.dump(instance, file)
 
-params = {
-    "messages": [
+def deserialize(filename):
+    with open(filename, 'rb') as file:
+        instance = pickle.load(file)
+    os.remove(filename)  # 反序列化后删除文件
+    return instance
 
-        {
-            "role": 'user',
-            "content": question
-        }
-    ],
-    # 如果需要切换模型，在这里修改
-    "model": 'gpt-3.5-turbo-16k-0613'
-}
-response = requests.post(
-    "https://cfwus02.opapi.win/v1/chat/completions",
-    headers=headers,
-    json=params,
-    stream=False
-)
-res = response.json()
-print(res)
-res_content = res['choices'][0]['message']['content']
-print(res_content)
+# 测试序列化和反序列化
+if __name__ == "__main__":
+    # 创建TestAI的一个实例
+    test_ai = TestAI(1, 2, 3, 4)
+
+    # 将实例序列化到文件
+    serialize(test_ai, 'test_ai.pkl')
+
+    # 更新实例
+    test_ai.add()
+
+    # 从文件反序列化实例
+    deserialized_test_ai = deserialize('test_ai.pkl')
+
+    # 测试以确保反序列化的实例具有原始值
+    assert deserialized_test_ai.a == 1
+    assert deserialized_test_ai.b == 2
+    assert deserialized_test_ai.c == 3
+    assert deserialized_test_ai.d == 4
+
+    print("序列化和反序列化测试通过。")

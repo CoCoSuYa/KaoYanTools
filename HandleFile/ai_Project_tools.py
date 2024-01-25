@@ -1,8 +1,13 @@
 import json
 import datetime
 import os
+import pickle
+import time
+
+from zhipuai import ZhipuAI
 
 keys_url = os.getcwd() + "/api_key.json"
+pickle_url = os.getcwd() + "/pickle_files/"
 
 
 def load_keys():
@@ -51,3 +56,31 @@ def update_key_time(api_key):
     # 将修改后的数据写回json文件
     with open(keys_url, 'w') as f:
         json.dump(data, f, indent=4)
+
+
+def serialize(instance, session_id):
+    url = os.path.join(pickle_url, 'talk_' + session_id + '.pkl')
+    with open(url, 'wb') as file:
+        pickle.dump(instance, file)
+    cleanup_serialized_files(pickle_url, 2 * 60 * 60)  # 2小时的秒数
+
+
+def deserialize(session_id):
+    url = os.path.join(pickle_url, 'talk_' + session_id + '.pkl')
+    with open(url, 'rb') as file:
+        instance = pickle.load(file)
+    cleanup_serialized_files(pickle_url, 2 * 60 * 60)  # 2小时的秒数
+    # 在反序列化之后，确保重新创建client
+    instance.client = ZhipuAI(api_key=instance.api_key)
+    return instance
+
+
+def cleanup_serialized_files(directory, max_age_seconds):
+    now = time.time()
+    for filename in os.listdir(directory):
+        file_path = os.path.join(directory, filename)
+        if os.path.isfile(file_path):
+            file_age = now - os.path.getmtime(file_path)  # 检查文件的最后修改时间
+            if file_age > max_age_seconds:
+                os.remove(file_path)
+                print("Deleted old serialized file: %s" % filename)
