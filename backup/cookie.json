@@ -1,19 +1,21 @@
 {
   "cookie1": {
     "smidV2": "20221122162401d65f9672e9d46570ec73549ff6051a8500ff3823125174770",
-    "a1": "1860c58f1305kqrhgx04uw4p5dgye2yh4yuidv8du30000405407",
-    "webId": "60296b8404cfb56977ec0bbc772622cc",
-    "gid": "yYKWW882q84qyYK8S2YiyvhYq82TAFxkC8477f7E4U2fk3q8vdJvxf88848248W8jW8D220i",
     "customerClientId": "452108658228118",
     "abRequestId": "60296b8404cfb56977ec0bbc772622cc",
     "x-user-id-pgy.xiaohongshu.com": "6131d237000000001f03a57a",
     "customer-sso-sid": "64ffd0df7500000000000004",
+    "a1": "18dba9df87331wc1k9tashg844kt75nuwk9fubuj530000273952",
+    "webId": "981a2409f115874f8ab9fe268ee75336",
+    "gid": "yYfD0jd8jJE8yYfD0jfiYTD7WqqyESyTj90MjV2xkY44Tiq89W2I77888JWqj2J8JY4KyDjy",
+    "cacheId": "ac09b169-094c-4cc1-a8e6-7894a6e4fc20",
+    "unread": "{%22ub%22:%2265b10f05000000001100c181%22%2C%22ue%22:%2265c9e5dc000000002d003182%22%2C%22uc%22:24}",
     "cache_feeds": "[]",
     "xsecappid": "xhs-pc-web",
-    "web_session": "040069b5f6de7613aab1dc9198374b2c875731",
-    "webBuild": "4.1.2",
-    "websectiga": "3633fe24d49c7dd0eb923edc8205740f10fdb18b25d424d2a2322c6196d2a4ad",
-    "sec_poison_id": "208a4a2a-f052-4451-97ad-d38fa1a7614c",
-    "unread": "{%22ub%22:%2265b1b7b20000000011011806%22%2C%22ue%22:%2265b0b8ad000000002c03c28a%22%2C%22uc%22:24}"
+    "acw_tc": "1c56fcc87800159e7ac508a163ff063685e2cf6346031b173d5f469e7e01b1db",
+    "webBuild": "4.4.0",
+    "websectiga": "9730ffafd96f2d09dc024760e253af6ab1feb0002827740b95a255ddf6847fc8",
+    "sec_poison_id": "993c6ee6-86df-4f10-a645-2d9f74b926f5",
+    "web_session": "040069b5f6de7613aab121fad3374b80279152"
 }
 }

@@ -397,7 +397,8 @@ def get_nicker_level_by_user_id(user_id):
     time.sleep(random.randint(1, 4))
     if res.status_code == 200:
         initial_state_str = extract_text(res.text)
-        initial_state_str = initial_state_str.replace('undefined', '"undefined"')
+        initial_state_str = re.sub(r'(?<=:)(\s*)undefined', r'\1"undefined"', initial_state_str)
+        print("nicker:", initial_state_str)
         initial_state = json.loads(initial_state_str)
         nicker_datas = initial_state["user"]["userPageData"]['interactions']
         print(nicker_datas)
@@ -440,7 +441,8 @@ def get_note_data(note_ids):
             if res.status_code == 200:
                 try:
                     initial_state_str = extract_text(res.text)
-                    initial_state_str = initial_state_str.replace('undefined', '"undefined"')
+                    initial_state_str = re.sub(r'(?<=:)(\s*)undefined', r'\1"undefined"', initial_state_str)
+                    print("note:", initial_state_str)
                     initial_state = json.loads(initial_state_str)
                     timestamp_ms = int(initial_state["note"]["noteDetailMap"][note_id]["note"]["time"])
                     timestamp_s = timestamp_ms / 1000  # Convert to seconds

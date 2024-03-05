@@ -3,14 +3,12 @@ import json
 import os
 from flask import Flask, render_template, request, redirect, flash, get_flashed_messages
 
-from flask_api.ai_project import ai_project_blueprint
 from flask_api.cmt_data_execute import cmt_data_execute_blueprint
 from flask_api.pac_data_execute import pac_data_execute_blueprint
 
 app = Flask(__name__, template_folder='../pages', static_folder='../pages/statics')
 app.register_blueprint(cmt_data_execute_blueprint)
 app.register_blueprint(pac_data_execute_blueprint)
-app.register_blueprint(ai_project_blueprint)
 app.secret_key = 'some_secret'
 
 file_path_url = os.getcwd() + "/backup/file_path.json"
